@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ברוך Next Generation</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --primary: #1e3a5f;
+  --primary-light: #2a5298;
+  --accent: #e8a020;
+  --accent-light: #f0b840;
+  --danger: #dc3545;
+  --success: #28a745;
+  --warning: #ffc107;
+  --bg: #f4f6fa;
+  --bg2: #ffffff;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text2: #555577;
+  --text3: #888899;
+  --border: #e0e4ef;
+  --shadow: 0 2px 12px rgba(30,58,95,0.10);
+  --shadow2: 0 4px 24px rgba(30,58,95,0.18);
+  --nav-height: 64px;
+  --header-height: 58px;
+  --radius: 14px;
+  --radius2: 8px;
+  --transition: 0.22s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"] {
+  --bg: #0f1923; --bg2: #162030; --card: #1a2840; --text: #e8edf5;
+  --text2: #9bacc4; --text3: #607090; --border: #243450;
+  --shadow: 0 2px 12px rgba(0,0,0,0.35); --shadow2: 0 4px 24px rgba(0,0,0,0.5);
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html,body { height: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; }
+body { overflow-x: hidden; }
+
+#app-header {
+  position: fixed; top: 0; right: 0; left: 0; z-index: 100;
+  background: var(--primary); height: var(--header-height);
+  display: flex; align-items: center; gap: 10px; padding: 0 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+#header-logo { font-size: 17px; font-weight: 700; color: var(--accent); white-space: nowrap; flex-shrink: 0; }
+#header-search-wrap { flex: 1; position: relative; }
+#header-search {
+  width: 100%; padding: 8px 36px 8px 12px; border: none; border-radius: 20px;
+  background: rgba(255,255,255,0.15); color: #fff; font-size: 14px; outline: none;
+}
+#header-search::placeholder { color: rgba(255,255,255,0.6); }
+#header-search:focus { background: rgba(255,255,255,0.25); }
+#search-clear-btn {
+  position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: rgba(255,255,255,0.7); font-size: 16px;
+  cursor: pointer; display: none; padding: 2px;
+}
+#header-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.header-btn {
+  background: none; border: none; color: rgba(255,255,255,0.85); font-size: 19px;
+  width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.header-btn:hover { background: rgba(255,255,255,0.12); }
+
+#main-content { padding-top: var(--header-height); padding-bottom: calc(var(--nav-height) + 10px); min-height: 100vh; }
+
+#bottom-nav {
+  position: fixed; bottom: 0; right: 0; left: 0; z-index: 100;
+  background: var(--bg2); border-top: 1px solid var(--border);
+  height: var(--nav-height); display: flex; align-items: stretch;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.10);
+}
+.nav-tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; cursor: pointer; border: none; background: none;
+  color: var(--text3); font-size: 10px; font-weight: 500;
+  min-width: 0; padding: 4px 2px 2px; -webkit-tap-highlight-color: transparent;
+}
+.nav-tab .nav-icon { font-size: 21px; line-height: 1; transition: transform var(--transition); }
+.nav-tab.active { color: var(--accent); }
+.nav-tab.active .nav-icon { transform: translateY(-2px); }
+
+.page { display: none; padding: 12px; }
+.page.active { display: block; }
+
+.card {
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+  margin-bottom: 10px; overflow: hidden;
+}
+
+.student-card { padding: 13px 14px; display: flex; align-items: flex-start; gap: 11px; }
+.student-avatar {
+  width: 44px; height: 44px; border-radius: 50%; background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 700; color: var(--accent); flex-shrink: 0;
+}
+.student-info { flex: 1; min-width: 0; cursor: pointer; }
+.student-name { font-weight: 600; font-size: 15px; }
+.student-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.student-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-top: 4px; }
+.badge-active { background: #e6f7ec; color: #1a7a3a; }
+.badge-inactive { background: #fff3cd; color: #856404; }
+.student-balance { font-size: 13px; font-weight: 600; margin-top: 2px; }
+.balance-owe { color: var(--danger); }
+.balance-ok { color: var(--success); }
+.student-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+.icon-btn {
+  width: 34px; height: 34px; border-radius: 8px; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-edit { background: #e8f0fe; color: var(--primary); }
+.btn-delete { background: #fde8ea; color: var(--danger); }
+.btn-archive { background: #fff3cd; color: #856404; }
+.btn-restore { background: #e6f7ec; color: var(--success); }
+.btn-wa { background: #e6f7ec; color: #25d366; }
+
+.page-search { display: flex; gap: 8px; margin-bottom: 12px; }
+.search-input {
+  flex: 1; padding: 10px 13px; border: 1.5px solid var(--border); border-radius: 10px;
+  background: var(--card); color: var(--text); font-size: 14px; outline: none;
+}
+.search-input:focus { border-color: var(--primary-light); }
+.filter-select {
+  padding: 10px 8px; border: 1.5px solid var(--border); border-radius: 10px;
+  background: var(--card); color: var(--text); font-size: 13px; outline: none; cursor: pointer;
+}
+
+.fab {
+  position: fixed; left: 18px; bottom: calc(var(--nav-height) + 16px); z-index: 90;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--accent); color: var(--primary); border: none; cursor: pointer;
+  font-size: 28px; font-weight: 700; box-shadow: var(--shadow2);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform var(--transition); -webkit-tap-highlight-color: transparent;
+}
+.fab:active { transform: scale(0.91); }
+
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.5);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--bg2); border-radius: var(--radius) var(--radius) 0 0;
+  width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto;
+  transform: translateY(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header {
+  position: sticky; top: 0; background: var(--bg2); z-index: 1;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 15px 16px 11px; border-bottom: 1px solid var(--border);
+}
+.modal-title { font-size: 16px; font-weight: 700; }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--border);
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: var(--text2);
+}
+.modal-close:hover { background: var(--danger); color: #fff; }
+.modal-body { padding: 14px 16px; }
+
+.form-group { margin-bottom: 13px; }
+.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+.form-control {
+  width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px;
+  background: var(--card); color: var(--text); font-size: 14px; outline: none; font-family: inherit;
+  transition: border-color var(--transition);
+}
+.form-control:focus { border-color: var(--primary-light); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-actions { display: flex; gap: 10px; margin-top: 16px; }
+.btn {
+  flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
+  cursor: pointer; min-height: 44px; font-family: inherit;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-light); }
+.btn-accent { background: var(--accent); color: var(--primary); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-secondary { background: var(--border); color: var(--text); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-sm { flex: none; padding: 8px 14px; font-size: 13px; min-height: 36px; }
+
+#toast-container { position: fixed; top: calc(var(--header-height)+8px); right: 0; left: 0; z-index: 300; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
+.toast {
+  padding: 11px 18px; border-radius: 10px; font-size: 14px; font-weight: 600;
+  box-shadow: var(--shadow2); max-width: 340px; text-align: center;
+  animation: toastIn 0.28s cubic-bezier(.4,0,.2,1) forwards;
+}
+.toast-success { background: var(--success); color: #fff; }
+.toast-error { background: var(--danger); color: #fff; }
+.toast-info { background: var(--primary); color: #fff; }
+@keyframes toastIn { from { opacity:0; transform: translateY(-16px) scale(0.94); } to { opacity:1; transform: none; } }
+
+.spinner-overlay {
+  position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.22);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.spinner-overlay.show { opacity: 1; pointer-events: all; }
+.spinner { width: 46px; height: 46px; border: 5px solid rgba(255,255,255,0.25); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.confirm-overlay {
+  position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s; padding: 20px;
+}
+.confirm-overlay.open { opacity: 1; pointer-events: all; }
+.confirm-box {
+  background: var(--bg2); border-radius: var(--radius); padding: 22px 18px; max-width: 310px; width: 100%;
+  box-shadow: var(--shadow2); transform: scale(0.93); transition: transform 0.22s;
+}
+.confirm-overlay.open .confirm-box { transform: scale(1); }
+.confirm-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.confirm-msg { font-size: 14px; color: var(--text2); margin-bottom: 18px; line-height: 1.5; }
+.confirm-actions { display: flex; gap: 10px; }
+
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 0 2px; }
+.section-title { font-size: 16px; font-weight: 700; }
+.section-count { font-size: 12px; color: var(--text3); background: var(--border); padding: 2px 8px; border-radius: 10px; }
+
+.empty-state { text-align: center; padding: 44px 20px; color: var(--text3); }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 10px; }
+.empty-state p { font-size: 14px; }
+
+.cal-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; padding: 10px 14px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+}
+.cal-nav-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--border);
+  background: none; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;
+  color: var(--text);
+}
+.cal-title { font-size: 15px; font-weight: 700; text-align: center; }
+.cal-view-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+.cal-view-tab {
+  flex: 1; padding: 8px; border: 1.5px solid var(--border); border-radius: 8px;
+  background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text2);
+  transition: all var(--transition); font-family: inherit;
+}
+.cal-view-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.day-slots { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.day-slot { display: flex; min-height: 48px; border-bottom: 1px solid var(--border); }
+.slot-time { width: 50px; padding: 6px 6px; font-size: 11px; color: var(--text3); font-weight: 600; flex-shrink: 0; border-left: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; }
+.slot-content { flex: 1; padding: 4px 6px; display: flex; flex-direction: column; gap: 3px; }
+.lesson-chip {
+  padding: 5px 9px; border-radius: 7px; font-size: 12px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 6px;
+}
+.status-planned { background: #dbeafe; color: #1e40af; }
+.status-done { background: #dcfce7; color: #166534; }
+.status-cancelled { background: #fee2e2; color: #991b1b; }
+.status-absent { background: #ffedd5; color: #9a3412; }
+
+.week-wrap { overflow-x: auto; }
+.week-grid { display: grid; grid-template-columns: 44px repeat(7,1fr); min-width: 420px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--card); }
+.week-header { background: var(--primary); color: #fff; padding: 7px 2px; text-align: center; font-size: 11px; font-weight: 600; }
+.week-time-col { color: var(--text3); font-size: 11px; font-weight: 600; text-align: center; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); display: flex; align-items: center; justify-content: center; min-height: 34px; }
+.week-cell { border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); min-height: 34px; padding: 2px; }
+.week-lesson { border-radius: 4px; font-size: 10px; padding: 2px 3px; margin-bottom: 2px; cursor: pointer; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+.month-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+.month-day-header { text-align: center; font-size: 11px; font-weight: 600; color: var(--text3); padding: 4px 0; }
+.month-day { background: var(--card); border-radius: 6px; min-height: 58px; padding: 4px; cursor: pointer; border: 1.5px solid transparent; }
+.month-day:hover { background: var(--border); }
+.month-day.today { border-color: var(--accent); }
+.month-day.other-month { opacity: 0.38; pointer-events: none; }
+.month-day-num { font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 2px; }
+.month-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin: 1px; }
+
+.payment-card { padding: 13px 15px; }
+.payment-row { display: flex; align-items: center; justify-content: space-between; }
+.payment-amount { font-size: 17px; font-weight: 700; color: var(--success); }
+.payment-method { font-size: 11px; color: var(--text3); background: var(--border); padding: 2px 8px; border-radius: 8px; font-weight: 600; }
+.payment-meta { font-size: 12px; color: var(--text2); margin-top: 3px; }
+
+.report-card { padding: 14px 15px; margin-bottom: 12px; }
+.chart-wrap { position: relative; height: 210px; }
+.stat-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 9px; margin-bottom: 12px; }
+.stat-card { background: var(--card); border-radius: var(--radius2); padding: 13px 12px; text-align: center; box-shadow: var(--shadow); }
+.stat-value { font-size: 21px; font-weight: 700; color: var(--primary); }
+[data-theme="dark"] .stat-value { color: var(--accent); }
+.stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+.debtor-row { padding: 11px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.debtor-row:last-child { border-bottom: none; }
+.debtor-name { font-weight: 600; font-size: 14px; }
+.debtor-phone { font-size: 11px; color: var(--text3); }
+.debtor-amount { font-size: 15px; font-weight: 700; color: var(--danger); }
+
+.archive-card { padding: 13px 14px; display: flex; align-items: center; gap: 11px; }
+.archive-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--text3); flex-shrink: 0; }
+.archive-info { flex: 1; }
+.archive-name { font-weight: 600; font-size: 14px; }
+.archive-meta { font-size: 12px; color: var(--text2); }
+
+.import-zone {
+  border: 2px dashed var(--border); border-radius: var(--radius); padding: 30px 20px; text-align: center;
+  cursor: pointer; transition: border-color var(--transition), background var(--transition); user-select: none;
+}
+.import-zone:hover, .import-zone.dragover { border-color: var(--primary-light); background: rgba(30,58,95,0.05); }
+.import-icon { font-size: 38px; margin-bottom: 8px; color: var(--text3); }
+.import-label { font-size: 14px; color: var(--text2); }
+.import-result { margin-top: 12px; padding: 11px; border-radius: 8px; font-size: 13px; }
+.import-result.ok { background: #e6f7ec; color: #166534; }
+.import-result.err { background: #fee2e2; color: #991b1b; }
+
+.settings-group { margin-bottom: 18px; }
+.settings-group-title { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-right: 4px; }
+[data-theme="dark"] .settings-group-title { color: var(--accent); }
+.settings-item {
+  background: var(--card); border-radius: var(--radius2); padding: 13px 15px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px; box-shadow: var(--shadow); cursor: pointer;
+}
+.settings-label { font-size: 14px; font-weight: 600; }
+
+.toggle { position: relative; width: 44px; height: 24px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--border); border-radius: 12px; transition: background var(--transition); }
+.toggle-slider:before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform var(--transition); }
+.toggle input:checked + .toggle-slider { background: var(--success); }
+.toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+#search-results-overlay {
+  position: fixed; top: var(--header-height); right: 0; left: 0; bottom: 0; z-index: 150;
+  background: var(--bg); display: none; overflow-y: auto; padding: 12px;
+}
+#search-results-overlay.open { display: block; }
+
+.pill-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
+.pill-tabs::-webkit-scrollbar { display: none; }
+.pill-tab {
+  flex-shrink: 0; padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text2);
+  transition: all var(--transition); font-family: inherit;
+}
+.pill-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.lesson-card { padding: 13px 14px; display: flex; align-items: flex-start; gap: 11px; cursor: pointer; }
+.lesson-status-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.lesson-info { flex: 1; }
+.lesson-main { font-weight: 600; font-size: 14px; }
+.lesson-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.lesson-actions { display: flex; gap: 5px; flex-shrink: 0; }
+
+.modal-tabs { display: flex; border-bottom: 1.5px solid var(--border); margin-bottom: 12px; }
+.modal-tab { flex: 1; padding: 9px; border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text3); border-bottom: 2.5px solid transparent; font-family: inherit; }
+.modal-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+.info-row { display: flex; gap: 8px; align-items: baseline; margin-bottom: 7px; }
+.info-key { font-size: 12px; color: var(--text3); font-weight: 600; min-width: 90px; flex-shrink: 0; }
+.info-val { font-size: 13px; color: var(--text); }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+@media (min-width: 500px) { .stat-grid { grid-template-columns: repeat(4,1fr); } }
+@media (max-width: 380px) { .form-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-theme="light">
+
+<div id="spinner-overlay" class="spinner-overlay"><div class="spinner"></div></div>
+<div id="toast-container"></div>
+
+<div id="confirm-overlay" class="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title">אישור פעולה</div>
+    <div class="confirm-msg" id="confirm-msg">האם אתה בטוח?</div>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm(false)">ביטול</button>
+      <button class="btn btn-danger" id="confirm-ok-btn" onclick="closeConfirm(true)">אישור</button>
+    </div>
+  </div>
+</div>
+
+<header id="app-header">
+  <div id="header-logo">BNG ✦</div>
+  <div id="header-search-wrap">
+    <input type="search" id="header-search" placeholder="חיפוש גלובלי..." autocomplete="off"
+      oninput="onGlobalSearch(this.value)" onfocus="if(this.value.length>=2)document.getElementById('search-results-overlay').classList.add('open')">
+    <button id="search-clear-btn" onclick="closeGlobalSearch()">✕</button>
+  </div>
+  <div id="header-actions">
+    <button class="header-btn" id="theme-btn" onclick="toggleTheme()" title="ערכת נושא">🌙</button>
+    <button class="header-btn" onclick="refreshCurrentPage()" title="רענן">🔄</button>
+  </div>
+</header>
+
+<div id="search-results-overlay">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <span class="section-title">תוצאות חיפוש</span>
+    <button class="btn btn-secondary btn-sm" onclick="closeGlobalSearch()">סגור</button>
+  </div>
+  <div id="search-results-content"></div>
+</div>
+
+<div id="main-content">
+
+  <!-- STUDENTS -->
+  <div id="page-students" class="page active">
+    <div class="page-search">
+      <input type="search" class="search-input" id="students-search" placeholder="חפש תלמיד..." oninput="filterStudents(this.value)">
+      <select class="filter-select" id="students-filter" onchange="filterStudents(document.getElementById('students-search').value)">
+        <option value="">הכל</option>
+        <option value="פעיל">פעיל</option>
+        <option value="לא פעיל">לא פעיל</option>
+      </select>
+    </div>
+    <div class="section-header">
+      <span class="section-title">תלמידים</span>
+      <span class="section-count" id="students-count">0</span>
+    </div>
+    <div id="students-list"></div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="page-calendar" class="page">
+    <div class="cal-view-tabs">
+      <button class="cal-view-tab active" onclick="setCalView('day',this)">יום</button>
+      <button class="cal-view-tab" onclick="setCalView('week',this)">שבוע</button>
+      <button class="cal-view-tab" onclick="setCalView('month',this)">חודש</button>
+    </div>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calPrev()">›</button>
+      <span class="cal-title" id="cal-title">היום</span>
+      <button class="cal-nav-btn" onclick="calNext()">‹</button>
+    </div>
+    <div id="cal-content"></div>
+  </div>
+
+  <!-- PAYMENTS -->
+  <div id="page-payments" class="page">
+    <div class="page-search">
+      <input type="search" class="search-input" id="payments-search" placeholder="חפש תשלום..." oninput="filterPayments(this.value)">
+      <select class="filter-select" id="payments-method-filter" onchange="filterPayments(document.getElementById('payments-search').value)">
+        <option value="">כל שיטות</option>
+        <option>מזומן</option><option>העברה</option><option>צ'ק</option>
+        <option>אשראי</option><option>ביט</option><option>פייבוקס</option>
+      </select>
+    </div>
+    <div class="section-header">
+      <span class="section-title">תשלומים</span>
+      <span class="section-count" id="payments-count">0</span>
+    </div>
+    <div id="payments-list"></div>
+  </div>
+
+  <!-- REPORTS -->
+  <div id="page-reports" class="page">
+    <div class="pill-tabs" id="report-tabs">
+      <button class="pill-tab active" onclick="setReportTab('monthly',this)">חודשי</button>
+      <button class="pill-tab" onclick="setReportTab('yearly',this)">שנתי</button>
+      <button class="pill-tab" onclick="setReportTab('debtors',this)">חייבים</button>
+      <button class="pill-tab" onclick="setReportTab('cancellations',this)">ביטולים</button>
+    </div>
+    <div id="reports-content"></div>
+  </div>
+
+  <!-- ARCHIVE -->
+  <div id="page-archive" class="page">
+    <div class="section-header">
+      <span class="section-title">ארכיון תלמידים</span>
+      <span class="section-count" id="archive-count">0</span>
+    </div>
+    <div id="archive-list"></div>
+  </div>
+
+  <!-- IMPORT -->
+  <div id="page-import" class="page">
+    <div class="pill-tabs" id="import-tabs">
+      <button class="pill-tab active" onclick="setImportTab('students',this)">תלמידים</button>
+      <button class="pill-tab" onclick="setImportTab('lessons',this)">שיעורים</button>
+      <button class="pill-tab" onclick="setImportTab('payments',this)">תשלומים</button>
+    </div>
+    <div id="import-content"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="page-settings" class="page">
+    <div id="settings-content"></div>
+  </div>
+
+</div>
+
+<nav id="bottom-nav">
+  <button class="nav-tab active" onclick="switchPage('students',this)"><span class="nav-icon">👥</span><span>תלמידים</span></button>
+  <button class="nav-tab" onclick="switchPage('calendar',this)"><span class="nav-icon">📅</span><span>לוח שנה</span></button>
+  <button class="nav-tab" onclick="switchPage('payments',this)"><span class="nav-icon">💳</span><span>תשלומים</span></button>
+  <button class="nav-tab" onclick="switchPage('reports',this)"><span class="nav-icon">📊</span><span>דוחות</span></button>
+  <button class="nav-tab" onclick="switchPage('archive',this)"><span class="nav-icon">🗄️</span><span>ארכיון</span></button>
+  <button class="nav-tab" onclick="switchPage('import',this)"><span class="nav-icon">📥</span><span>יבוא</span></button>
+  <button class="nav-tab" onclick="switchPage('settings',this)"><span class="nav-icon">⚙️</span><span>הגדרות</span></button>
+</nav>
+
+<button class="fab" id="main-fab" onclick="fabAction()">＋</button>
+
+<!-- STUDENT MODAL -->
+<div class="modal-overlay" id="student-modal-overlay" onclick="if(event.target===this)closeStudentModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="student-modal-title">תלמיד חדש</span>
+      <button class="modal-close" onclick="closeStudentModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="student-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">שם מלא *</label>
+          <input class="form-control" id="s-name" placeholder="שם פרטי ומשפחה">
+        </div>
+        <div class="form-group">
+          <label class="form-label">תעודת זהות</label>
+          <input class="form-control" id="s-tz" placeholder="000000000" maxlength="9">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">טלפון *</label>
+          <input class="form-control" id="s-phone" placeholder="050-0000000" type="tel">
+        </div>
+        <div class="form-group">
+          <label class="form-label">טלפון נוסף</label>
+          <input class="form-control" id="s-phone2" placeholder="050-0000000" type="tel">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">תאריך לידה</label>
+          <input class="form-control" id="s-birth" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">תאריך התחלה</label>
+          <input class="form-control" id="s-start" type="date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">כתובת</label>
+        <input class="form-control" id="s-address" placeholder="רחוב, עיר">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">תמחור</label>
+          <select class="form-control" id="s-pricing" onchange="updatePricingField()">
+            <option value="רגיל">רגיל</option>
+            <option value="חבילה א">חבילה א</option>
+            <option value="חבילה ב">חבילה ב</option>
+            <option value="פנימי">פנימי</option>
+            <option value="מבחן בלבד">מבחן בלבד</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">מחיר לשיעור (₪)</label>
+          <input class="form-control" id="s-price" type="number" min="0" value="160">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">סטטוס</label>
+        <select class="form-control" id="s-status">
+          <option value="פעיל">פעיל</option>
+          <option value="לא פעיל">לא פעיל</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">הערות</label>
+        <textarea class="form-control" id="s-notes" rows="2" placeholder="הערות נוספות..."></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="closeStudentModal()">ביטול</button>
+        <button class="btn btn-primary" onclick="saveStudent()">שמור</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT DETAIL MODAL -->
+<div class="modal-overlay" id="student-detail-overlay" onclick="if(event.target===this)closeStudentDetail()">
+  <div class="modal" id="student-detail-modal">
+    <div class="modal-header">
+      <span class="modal-title" id="sd-title">פרטי תלמיד</span>
+      <button class="modal-close" onclick="closeStudentDetail()">✕</button>
+    </div>
+    <div class="modal-body" id="sd-body"></div>
+  </div>
+</div>
+
+<!-- LESSON MODAL -->
+<div class="modal-overlay" id="lesson-modal-overlay" onclick="if(event.target===this)closeLessonModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="lesson-modal-title">שיעור חדש</span>
+      <button class="modal-close" onclick="closeLessonModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="lesson-id">
+      <div class="form-group">
+        <label class="form-label">תלמיד *</label>
+        <select class="form-control" id="l-student"></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">תאריך *</label>
+          <input class="form-control" id="l-date" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">שעה *</label>
+          <input class="form-control" id="l-time" type="time">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">משך (דקות)</label>
+          <select class="form-control" id="l-duration">
+            <option value="45">45 דקות</option>
+            <option value="60" selected>60 דקות</option>
+            <option value="90">90 דקות</option>
+            <option value="120">120 דקות</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">סוג שיעור</label>
+          <select class="form-control" id="l-type">
+            <option value="רגיל">רגיל</option>
+            <option value="פנימי">פנימי</option>
+            <option value="מבחן">מבחן</option>
+            <option value="שיעור נוסף">שיעור נוסף</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">מחיר (₪)</label>
+          <input class="form-control" id="l-price" type="number" min="0" placeholder="160">
+        </div>
+        <div class="form-group">
+          <label class="form-label">סטטוס</label>
+          <select class="form-control" id="l-status">
+            <option value="מתוכנן">מתוכנן</option>
+            <option value="הושלם">הושלם</option>
+            <option value="בוטל">בוטל</option>
+            <option value="לא הגיע">לא הגיע</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">הערות</label>
+        <textarea class="form-control" id="l-notes" rows="2" placeholder="הערות..."></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="closeLessonModal()">ביטול</button>
+        <button class="btn btn-primary" onclick="saveLesson()">שמור</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="payment-modal-overlay" onclick="if(event.target===this)closePaymentModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="payment-modal-title">תשלום חדש</span>
+      <button class="modal-close" onclick="closePaymentModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="payment-id">
+      <div class="form-group">
+        <label class="form-label">תלמיד *</label>
+        <select class="form-control" id="p-student"></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">סכום (₪) *</label>
+          <input class="form-control" id="p-amount" type="number" min="0" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">תאריך *</label>
+          <input class="form-control" id="p-date" type="date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">אמצעי תשלום</label>
+          <select class="form-control" id="p-method">
+            <option>מזומן</option><option>העברה</option><option>צ'ק</option>
+            <option>אשראי</option><option>ביט</option><option>פייבוקס</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">מספר קבלה</label>
+          <input class="form-control" id="p-receipt" placeholder="000">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">הערות</label>
+        <textarea class="form-control" id="p-notes" rows="2"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="closePaymentModal()">ביטול</button>
+        <button class="btn btn-primary" onclick="savePayment()">שמור</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ===== STATE =====
+var S = {
+  page: 'students',
+  theme: 'light',
+  students: [],
+  payments: [],
+  balances: {},
+  calView: 'day',
+  calDate: new Date(),
+  reportTab: 'monthly',
+  importTab: 'students',
+  importFn: 'importStudentsCSV',
+  importCsv: '',
+  confirmCb: null,
+  charts: {},
+  currentLessonData: null
+};
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', function() {
+  loadPage('students');
+  buildImportUI();
+  buildSettingsUI({});
+});
+
+// ===== THEME =====
+function toggleTheme() {
+  S.theme = S.theme === 'light' ? 'dark' : 'light';
+  document.body.setAttribute('data-theme', S.theme);
+  document.getElementById('theme-btn').textContent = S.theme === 'dark' ? '☀️' : '🌙';
+}
+
+// ===== NAV =====
+function switchPage(page, tabEl) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+  if (tabEl) tabEl.classList.add('active');
+  S.page = page;
+  closeGlobalSearch();
+  loadPage(page);
+}
+
+function loadPage(page) {
+  if (page === 'students') loadStudents();
+  else if (page === 'calendar') loadCalendar();
+  else if (page === 'payments') loadPayments();
+  else if (page === 'reports') loadReports();
+  else if (page === 'archive') loadArchive();
+  else if (page === 'import') buildImportUI();
+  else if (page === 'settings') loadSettings();
+}
+
+function refreshCurrentPage() { loadPage(S.page); }
+
+// ===== SPINNER =====
+function showSpinner() { document.getElementById('spinner-overlay').classList.add('show'); }
+function hideSpinner() { document.getElementById('spinner-overlay').classList.remove('show'); }
+
+// ===== TOAST =====
+function showToast(msg, type) {
+  var el = document.createElement('div');
+  el.className = 'toast toast-' + (type || 'info');
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(function() { el.remove(); }, 3200);
+}
+function showError(msg) { showToast(msg || 'שגיאה', 'error'); hideSpinner(); }
+function showSuccess(msg) { showToast(msg, 'success'); }
+
+// ===== CONFIRM =====
+function showConfirm(title, msg, okLabel, okClass, cb) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  var btn = document.getElementById('confirm-ok-btn');
+  btn.textContent = okLabel || 'אישור';
+  btn.className = 'btn ' + (okClass || 'btn-danger');
+  S.confirmCb = cb;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function closeConfirm(result) {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  if (result && S.confirmCb) S.confirmCb();
+  S.confirmCb = null;
+}
+
+// ===== FAB =====
+function fabAction() {
+  if (S.page === 'students') openStudentModal();
+  else if (S.page === 'calendar') openLessonModal();
+  else if (S.page === 'payments') openPaymentModal();
+  else if (S.page === 'archive') loadArchive();
+  else if (S.page === 'reports') loadReports();
+}
+
+// ===== GAS RUNNER =====
+function gasRun(fn, args, cb) {
+  showSpinner();
+  var runner = google.script.run
+    .withSuccessHandler(function(res) { hideSpinner(); cb(res); })
+    .withFailureHandler(function(err) { hideSpinner(); showError(err && err.message ? err.message : String(err)); });
+  if (args === undefined || args === null) runner[fn]();
+  else if (Array.isArray(args)) runner[fn].apply(runner, args);
+  else runner[fn](args);
+}
+
+// ===== DATE UTILS =====
+function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+function toISO(d) { return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+function fromISO(s) { if (!s) return new Date(); var p=s.split('-'); return new Date(+p[0],+p[1]-1,+p[2]); }
+function isoToIL(s) { if (!s) return ''; if (s.indexOf('/')>-1) return s; var p=s.split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s; }
+function ilToISO(s) { if (!s) return ''; if (s.indexOf('-')>-1) return s; var p=s.split('/'); return p.length===3?p[2]+'-'+p[1]+'-'+p[0]:s; }
+function todayISO() { return toISO(new Date()); }
+function hebrewDay(dow) { return ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'][dow]; }
+function hebrewMonth(m) { return ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'][m]; }
+function fmtPhone(p) { if (!p) return ''; var d=p.replace(/\D/g,''); return d.length===10?d.substr(0,3)+'-'+d.substr(3):p; }
+function initials(name) { if (!name) return '?'; var p=name.trim().split(' '); return p.length>=2?p[0][0]+p[p.length-1][0]:p[0][0]||'?'; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ===== LESSON STATUS =====
+function lsClass(st) {
+  if (st==='הושלם') return 'status-done';
+  if (st==='בוטל') return 'status-cancelled';
+  if (st==='לא הגיע') return 'status-absent';
+  return 'status-planned';
+}
+function lsColor(st) {
+  if (st==='הושלם') return '#16a34a';
+  if (st==='בוטל') return '#dc2626';
+  if (st==='לא הגיע') return '#ea580c';
+  return '#2563eb';
+}
+
+// ===== STUDENTS PAGE =====
+function loadStudents() {
+  gasRun('getStudents', [{status:''}], function(data) {
+    S.students = data || [];
+    renderStudents();
+  });
+}
+
+function renderStudents() {
+  var filter = (document.getElementById('students-filter')||{}).value || '';
+  var q = ((document.getElementById('students-search')||{}).value || '').trim().toLowerCase();
+  var list = S.students.filter(function(s) {
+    if (filter && s.status !== filter) return false;
+    if (q && (s.name||'').toLowerCase().indexOf(q)<0 && (s.phone||'').indexOf(q)<0 && (s.tz||'').indexOf(q)<0) return false;
+    return true;
+  });
+  document.getElementById('students-count').textContent = list.length;
+  if (!list.length) {
+    document.getElementById('students-list').innerHTML = '<div class="empty-state"><div class="empty-icon">👤</div><p>לא נמצאו תלמידים</p></div>';
+    return;
+  }
+  var html = list.map(function(s) {
+    var bc = s.status==='פעיל'?'badge-active':'badge-inactive';
+    var bal = S.balances[s.id];
+    var balHtml = bal!==undefined ? '<div class="student-balance '+(bal<0?'balance-owe':'balance-ok')+'">'+(bal<0?'חוב: ₪'+Math.abs(bal).toLocaleString():'זכות: ₪'+bal.toLocaleString())+'</div>' : '';
+    return '<div class="card"><div class="student-card">'
+      +'<div class="student-avatar">'+initials(s.name)+'</div>'
+      +'<div class="student-info" onclick="openStudentDetail(\''+s.id+'\')">'
+        +'<div class="student-name">'+esc(s.name)+'</div>'
+        +'<div class="student-meta">'+fmtPhone(s.phone)+(s.pricing?' · '+esc(s.pricing):'')+'</div>'
+        +'<span class="student-badge '+bc+'">'+esc(s.status||'פעיל')+'</span>'
+        +balHtml
+      +'</div>'
+      +'<div class="student-actions">'
+        +'<button class="icon-btn btn-edit" onclick="openStudentModal(\''+s.id+'\')" title="עריכה">✏️</button>'
+        +'<button class="icon-btn btn-archive" onclick="doArchiveStudent(\''+s.id+'\',\''+esc(s.name)+'\')" title="ארכיון">📦</button>'
+        +'<button class="icon-btn btn-delete" onclick="doDeleteStudent(\''+s.id+'\',\''+esc(s.name)+'\')" title="מחיקה">🗑️</button>'
+      +'</div>'
+    +'</div></div>';
+  }).join('');
+  document.getElementById('students-list').innerHTML = html;
+}
+
+function filterStudents() { renderStudents(); }
+
+// ===== STUDENT MODAL =====
+function openStudentModal(id) {
+  document.getElementById('student-id').value = id || '';
+  document.getElementById('student-modal-title').textContent = id ? 'עריכת תלמיד' : 'תלמיד חדש';
+  if (id) {
+    var s = S.students.find(function(x){ return x.id===id; });
+    if (s) fillStudentForm(s); else clearStudentForm();
+  } else {
+    clearStudentForm();
+  }
+  document.getElementById('student-modal-overlay').classList.add('open');
+}
+function closeStudentModal() { document.getElementById('student-modal-overlay').classList.remove('open'); }
+
+function clearStudentForm() {
+  ['s-name','s-tz','s-phone','s-phone2','s-address','s-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('s-birth').value='';
+  document.getElementById('s-start').value = todayISO();
+  document.getElementById('s-pricing').value='רגיל';
+  document.getElementById('s-price').value='160';
+  document.getElementById('s-status').value='פעיל';
+}
+
+function fillStudentForm(s) {
+  document.getElementById('s-name').value = s.name||'';
+  document.getElementById('s-tz').value = s.tz||'';
+  document.getElementById('s-phone').value = s.phone||'';
+  document.getElementById('s-phone2').value = s.phone2||'';
+  document.getElementById('s-birth').value = s.birthDate ? ilToISO(s.birthDate) : '';
+  document.getElementById('s-start').value = s.startDate ? ilToISO(s.startDate) : '';
+  document.getElementById('s-address').value = s.address||'';
+  document.getElementById('s-pricing').value = s.pricing||'רגיל';
+  document.getElementById('s-price').value = s.priceRegular||160;
+  document.getElementById('s-status').value = s.status||'פעיל';
+  document.getElementById('s-notes').value = s.notes||'';
+}
+
+function updatePricingField() {
+  var m = {'רגיל':160,'חבילה א':180,'חבילה ב':191,'פנימי':175,'מבחן בלבד':200};
+  document.getElementById('s-price').value = m[document.getElementById('s-pricing').value] || 160;
+}
+
+function saveStudent() {
+  var name = document.getElementById('s-name').value.trim();
+  var phone = document.getElementById('s-phone').value.trim();
+  if (!name) { showError('נא להזין שם תלמיד'); return; }
+  if (!phone) { showError('נא להזין מספר טלפון'); return; }
+  var obj = {
+    name: name, tz: document.getElementById('s-tz').value.trim(),
+    phone: phone, phone2: document.getElementById('s-phone2').value.trim(),
+    birthDate: isoToIL(document.getElementById('s-birth').value),
+    startDate: isoToIL(document.getElementById('s-start').value),
+    address: document.getElementById('s-address').value.trim(),
+    pricing: document.getElementById('s-pricing').value,
+    priceRegular: parseInt(document.getElementById('s-price').value)||160,
+    status: document.getElementById('s-status').value,
+    notes: document.getElementById('s-notes').value.trim()
+  };
+  var id = document.getElementById('student-id').value;
+  gasRun(id ? 'updateStudent' : 'createStudent', id ? [id,obj] : obj, function() {
+    showSuccess(id ? 'תלמיד עודכן' : 'תלמיד נוצר');
+    closeStudentModal();
+    loadStudents();
+  });
+}
+
+function doDeleteStudent(id, name) {
+  showConfirm('מחיקת תלמיד','האם למחוק את '+name+'? פעולה זו אינה הפיכה.','מחק','btn-danger',function(){
+    gasRun('deleteStudent',id,function(){ showSuccess('תלמיד נמחק'); loadStudents(); });
+  });
+}
+
+function doArchiveStudent(id, name) {
+  showConfirm('העברה לארכיון','להעביר את '+name+' לארכיון?','העבר','btn-accent',function(){
+    gasRun('archiveStudent',id,function(){ showSuccess('הועבר לארכיון'); loadStudents(); });
+  });
+}
+
+// ===== STUDENT DETAIL =====
+function openStudentDetail(id) {
+  var s = S.students.find(function(x){ return x.id===id; });
+  if (!s) return;
+  document.getElementById('sd-title').textContent = s.name;
+  document.getElementById('student-detail-overlay').setAttribute('data-sid', id);
+  var h = '<div class="modal-tabs">'
+    +'<button class="modal-tab active" onclick="sdTab(this,\'info\',\''+id+'\')">פרטים</button>'
+    +'<button class="modal-tab" onclick="sdTab(this,\'lessons\',\''+id+'\')">שיעורים</button>'
+    +'<button class="modal-tab" onclick="sdTab(this,\'payments\',\''+id+'\')">תשלומים</button>'
+    +'</div>'
+    +'<div id="sd-info">'
+    +infoRow('שם',s.name)+infoRow('ת.ז.',s.tz||'—')+infoRow('טלפון',fmtPhone(s.phone));
+  if (s.phone2) h += infoRow('טלפון 2',fmtPhone(s.phone2));
+  h += infoRow('כתובת',s.address||'—')+infoRow('תאריך לידה',s.birthDate||'—')
+    +infoRow('תחילת לימודים',s.startDate||'—')+infoRow('תמחור',s.pricing||'רגיל')
+    +infoRow('מחיר/שיעור','₪'+(s.priceRegular||160))+infoRow('סטטוס',s.status||'פעיל');
+  if (s.notes) h += infoRow('הערות',s.notes);
+  var bal = S.balances[id];
+  if (bal!==undefined) h += infoRow('יתרה','<span style="color:'+(bal<0?'var(--danger)':'var(--success)')+'">₪'+Math.abs(bal).toLocaleString()+(bal<0?' (חוב)':' (זכות)')+'</span>');
+  h += '<div class="form-actions" style="margin-top:14px">'
+    +'<button class="btn btn-primary" onclick="openStudentModal(\''+id+'\');closeStudentDetail()">✏️ עריכה</button>'
+    +'<button class="btn btn-success" onclick="sendWelcomeWA(\''+id+'\')">📱 WhatsApp</button>'
+    +'</div></div>'
+    +'<div id="sd-lessons" style="display:none"></div>'
+    +'<div id="sd-payments" style="display:none"></div>';
+  document.getElementById('sd-body').innerHTML = h;
+  document.getElementById('student-detail-overlay').classList.add('open');
+}
+function closeStudentDetail() { document.getElementById('student-detail-overlay').classList.remove('open'); }
+
+function sdTab(btn, tab, sid) {
+  document.querySelectorAll('#sd-body .modal-tab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('sd-info').style.display = tab==='info'?'':'none';
+  document.getElementById('sd-lessons').style.display = tab==='lessons'?'':'none';
+  document.getElementById('sd-payments').style.display = tab==='payments'?'':'none';
+  if (tab==='lessons' && document.getElementById('sd-lessons').innerHTML==='') {
+    document.getElementById('sd-lessons').innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><p>טוען...</p></div>';
+    gasRun('getLessonsByStudent', sid, function(data) {
+      if (!data||!data.length) { document.getElementById('sd-lessons').innerHTML='<div class="empty-state"><div class="empty-icon">📅</div><p>אין שיעורים</p></div>'; return; }
+      document.getElementById('sd-lessons').innerHTML = data.map(function(l){
+        return '<div class="card"><div class="lesson-card">'
+          +'<div class="lesson-status-dot" style="background:'+lsColor(l.status)+'"></div>'
+          +'<div class="lesson-info"><div class="lesson-main">'+esc(l.date||'')+' '+esc(l.time||'')+'</div>'
+          +'<div class="lesson-sub">'+esc(l.type||'רגיל')+' · '+esc(l.status||'')+' · ₪'+Number(l.price||0).toLocaleString()+'</div></div>'
+          +'<div class="lesson-actions">'
+          +'<button class="icon-btn btn-edit" onclick="openLessonModal(\''+l.id+'\')">✏️</button>'
+          +'<button class="icon-btn btn-delete" onclick="doDeleteLesson(\''+l.id+'\')">🗑️</button>'
+          +'</div>'
+          +'</div></div>';
+      }).join('');
+    });
+  }
+  if (tab==='payments' && document.getElementById('sd-payments').innerHTML==='') {
+    document.getElementById('sd-payments').innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><p>טוען...</p></div>';
+    gasRun('getPaymentsByStudent', sid, function(data) {
+      if (!data||!data.length) { document.getElementById('sd-payments').innerHTML='<div class="empty-state"><div class="empty-icon">💳</div><p>אין תשלומים</p></div>'; return; }
+      document.getElementById('sd-payments').innerHTML = data.map(function(p){
+        return '<div class="card"><div class="payment-card">'
+          +'<div class="payment-row"><span class="payment-amount">₪'+Number(p.amount||0).toLocaleString()+'</span><span class="payment-method">'+esc(p.method||'')+'</span></div>'
+          +'<div class="payment-meta">'+esc(p.date||'')+(p.receiptNumber?' · קבלה #'+p.receiptNumber:'')+'</div>'
+          +'</div></div>';
+      }).join('');
+    });
+  }
+}
+
+function infoRow(k,v) { return '<div class="info-row"><span class="info-key">'+esc(k)+'</span><span class="info-val">'+v+'</span></div>'; }
+
+function sendWelcomeWA(sid) {
+  gasRun('sendWelcomeMessage', sid, function(){ showSuccess('הודעת WhatsApp נשלחה'); });
+}
+
+// ===== STUDENT SELECT HELPER =====
+function fillStudentSelect(selId) {
+  var sel = document.getElementById(selId);
+  var cur = sel ? sel.value : '';
+  var opts = '<option value="">-- בחר תלמיד --</option>';
+  S.students.forEach(function(s){ opts += '<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>'; });
+  if (sel) { sel.innerHTML = opts; sel.value = cur; }
+}
+
+// ===== CALENDAR =====
+function setCalView(v, btn) {
+  S.calView = v;
+  document.querySelectorAll('.cal-view-tab').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  loadCalendar();
+}
+
+function calPrev() {
+  if (S.calView==='day') S.calDate.setDate(S.calDate.getDate()-1);
+  else if (S.calView==='week') S.calDate.setDate(S.calDate.getDate()-7);
+  else S.calDate.setMonth(S.calDate.getMonth()-1);
+  loadCalendar();
+}
+function calNext() {
+  if (S.calView==='day') S.calDate.setDate(S.calDate.getDate()+1);
+  else if (S.calView==='week') S.calDate.setDate(S.calDate.getDate()+7);
+  else S.calDate.setMonth(S.calDate.getMonth()+1);
+  loadCalendar();
+}
+
+function loadCalendar() {
+  if (S.calView==='day') {
+    var d = S.calDate;
+    document.getElementById('cal-title').textContent = pad2(d.getDate())+'/'+pad2(d.getMonth()+1)+'/'+d.getFullYear()+' ('+hebrewDay(d.getDay())+')';
+    gasRun('getLessonsByDate', toISO(d), function(data){ renderDayView(data||[]); });
+  } else if (S.calView==='week') {
+    var ws = weekStart(S.calDate), we = new Date(ws); we.setDate(ws.getDate()+6);
+    document.getElementById('cal-title').textContent = pad2(ws.getDate())+'/'+pad2(ws.getMonth()+1)+' – '+pad2(we.getDate())+'/'+pad2(we.getMonth()+1)+'/'+we.getFullYear();
+    gasRun('getLessonsByWeek', toISO(ws), function(data){ renderWeekView(data||[], ws); });
+  } else {
+    var y=S.calDate.getFullYear(), m=S.calDate.getMonth();
+    document.getElementById('cal-title').textContent = hebrewMonth(m)+' '+y;
+    gasRun('getLessonsByMonth', [y, m+1], function(data){ renderMonthView(data||[], y, m); });
+  }
+}
+
+function weekStart(d) {
+  var c = new Date(d); c.setDate(d.getDate()-d.getDay()); return c;
+}
+
+function renderDayView(lessons) {
+  var byH = {};
+  lessons.forEach(function(l){ var h=l.time?+l.time.split(':')[0]:0; (byH[h]||(byH[h]=[])).push(l); });
+  var html = '<div class="day-slots">';
+  for (var h=7; h<=21; h++) {
+    var ls = byH[h]||[];
+    html += '<div class="day-slot"><div class="slot-time">'+pad2(h)+':00</div><div class="slot-content">';
+    ls.forEach(function(l){
+      html += '<div class="lesson-chip '+lsClass(l.status)+'" onclick="openLessonModal(\''+l.id+'\')">'
+        +'<span>'+esc(l.time||'')+' '+esc(l.studentName||'')+'</span>'
+        +'<span style="font-size:10px;opacity:0.8">'+esc(l.type||'')+'</span>'
+        +'</div>';
+    });
+    html += '</div></div>';
+  }
+  html += '</div>';
+  document.getElementById('cal-content').innerHTML = html;
+}
+
+function renderWeekView(lessons, ws) {
+  var days = [];
+  for (var i=0;i<7;i++){ var d=new Date(ws); d.setDate(ws.getDate()+i); days.push(d); }
+  var dnShort = ['א','ב','ג','ד','ה','ו','ש'];
+  var idx = {};
+  lessons.forEach(function(l){
+    var dt = l.date||''; if (dt.indexOf('/')>-1){var p=dt.split('/');dt=p[2]+'-'+p[1]+'-'+p[0];}
+    var h = l.time ? +l.time.split(':')[0] : 0;
+    var key = dt+'_'+h; (idx[key]||(idx[key]=[])).push(l);
+  });
+  var html = '<div class="week-wrap"><div class="week-grid">';
+  html += '<div class="week-header">שעה</div>';
+  days.forEach(function(d,i){
+    var isT = toISO(d)===todayISO();
+    html += '<div class="week-header" style="'+(isT?'background:var(--accent);color:var(--primary)':'')+'">'+dnShort[i]+'<br>'+d.getDate()+'</div>';
+  });
+  for (var h=7;h<=20;h++){
+    html += '<div class="week-time-col">'+pad2(h)+'</div>';
+    days.forEach(function(d){
+      var ls = idx[toISO(d)+'_'+h]||[];
+      html += '<div class="week-cell">';
+      ls.forEach(function(l){
+        html += '<div class="week-lesson '+lsClass(l.status)+'" onclick="openLessonModal(\''+l.id+'\')" title="'+esc(l.studentName||'')+'">'+esc(l.studentName||'')+'</div>';
+      });
+      html += '</div>';
+    });
+  }
+  html += '</div></div>';
+  document.getElementById('cal-content').innerHTML = html;
+}
+
+function renderMonthView(lessons, year, month) {
+  var first = new Date(year,month,1), last = new Date(year,month+1,0);
+  var idx = {};
+  lessons.forEach(function(l){
+    var dt = l.date||''; if (dt.indexOf('/')>-1){var p=dt.split('/');dt=p[2]+'-'+p[1]+'-'+p[0];}
+    (idx[dt]||(idx[dt]=[])).push(l);
+  });
+  var dh = ['א','ב','ג','ד','ה','ו','ש'];
+  var html = '<div class="month-grid">';
+  dh.forEach(function(d){ html += '<div class="month-day-header">'+d+'</div>'; });
+  for (var b=0;b<first.getDay();b++) html += '<div class="month-day other-month"></div>';
+  for (var day=1;day<=last.getDate();day++){
+    var iso = year+'-'+pad2(month+1)+'-'+pad2(day);
+    var ls = idx[iso]||[];
+    var isT = iso===todayISO();
+    html += '<div class="month-day'+(isT?' today':'')+'" onclick="calDayClick(\''+iso+'\')"><div class="month-day-num">'+day+'</div>';
+    ls.slice(0,4).forEach(function(l){ html += '<span class="month-dot" style="background:'+lsColor(l.status)+'"></span>'; });
+    if (ls.length>4) html += '<span style="font-size:9px;color:var(--text3)">+'+( ls.length-4)+'</span>';
+    html += '</div>';
+  }
+  html += '</div>';
+  document.getElementById('cal-content').innerHTML = html;
+}
+
+function calDayClick(iso) { S.calDate = fromISO(iso); S.calView='day'; document.querySelectorAll('.cal-view-tab')[0].click(); }
+
+// ===== LESSON MODAL =====
+function openLessonModal(id) {
+  fillStudentSelect('l-student');
+  document.getElementById('lesson-id').value = id || '';
+  document.getElementById('lesson-modal-title').textContent = id ? 'עריכת שיעור' : 'שיעור חדש';
+  if (id) {
+    gasRun('getLessons', null, function(data) {
+      S.currentLessonData = data || [];
+      var l = S.currentLessonData.find(function(x){ return x.id===id; });
+      if (l) {
+        document.getElementById('l-student').value = l.studentId||'';
+        document.getElementById('l-date').value = l.date ? ilToISO(l.date) : '';
+        document.getElementById('l-time').value = l.time||'';
+        document.getElementById('l-duration').value = l.duration||60;
+        document.getElementById('l-type').value = l.type||'רגיל';
+        document.getElementById('l-price').value = l.price||'';
+        document.getElementById('l-status').value = l.status||'מתוכנן';
+        document.getElementById('l-notes').value = l.notes||'';
+      }
+    });
+  } else {
+    document.getElementById('l-student').value='';
+    document.getElementById('l-date').value = toISO(S.calDate) || todayISO();
+    document.getElementById('l-time').value='';
+    document.getElementById('l-duration').value='60';
+    document.getElementById('l-type').value='רגיל';
+    document.getElementById('l-price').value='160';
+    document.getElementById('l-status').value='מתוכנן';
+    document.getElementById('l-notes').value='';
+  }
+  document.getElementById('lesson-modal-overlay').classList.add('open');
+}
+function closeLessonModal() { document.getElementById('lesson-modal-overlay').classList.remove('open'); }
+
+function saveLesson() {
+  var sid = document.getElementById('l-student').value;
+  var date = document.getElementById('l-date').value;
+  var time = document.getElementById('l-time').value;
+  if (!sid) { showError('נא לבחור תלמיד'); return; }
+  if (!date) { showError('נא לבחור תאריך'); return; }
+  if (!time) { showError('נא לבחור שעה'); return; }
+  var st = S.students.find(function(x){ return x.id===sid; });
+  var obj = {
+    studentId:sid, studentName: st?st.name:'',
+    date: isoToIL(date), time: time,
+    duration: parseInt(document.getElementById('l-duration').value)||60,
+    type: document.getElementById('l-type').value,
+    price: parseInt(document.getElementById('l-price').value)||160,
+    status: document.getElementById('l-status').value,
+    notes: document.getElementById('l-notes').value.trim()
+  };
+  var id = document.getElementById('lesson-id').value;
+  gasRun(id?'updateLesson':'createLesson', id?[id,obj]:obj, function(){
+    showSuccess(id?'שיעור עודכן':'שיעור נוצר');
+    closeLessonModal();
+    loadCalendar();
+  });
+}
+
+function doDeleteLesson(id) {
+  showConfirm('מחיקת שיעור','האם למחוק שיעור זה?','מחק','btn-danger',function(){
+    gasRun('deleteLesson',id,function(){ showSuccess('שיעור נמחק'); loadCalendar(); closeStudentDetail(); });
+  });
+}
+
+// ===== PAYMENTS PAGE =====
+function loadPayments() {
+  gasRun('getPayments', null, function(data){
+    S.payments = data || [];
+    renderPayments();
+  });
+}
+
+function renderPayments() {
+  var method = (document.getElementById('payments-method-filter')||{}).value||'';
+  var q = ((document.getElementById('payments-search')||{}).value||'').trim().toLowerCase();
+  var list = S.payments.filter(function(p){
+    if (method && p.method!==method) return false;
+    if (q && (p.studentName||'').toLowerCase().indexOf(q)<0 && (p.notes||'').toLowerCase().indexOf(q)<0) return false;
+    return true;
+  });
+  document.getElementById('payments-count').textContent = list.length;
+  var total = list.reduce(function(a,b){ return a+Number(b.amount||0); },0);
+  var html = '';
+  if (total>0) html += '<div class="card" style="padding:12px 15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">'
+    +'<span style="font-size:13px;color:var(--text2);font-weight:600">סה"כ:</span>'
+    +'<span style="font-size:18px;font-weight:700;color:var(--success)">₪'+total.toLocaleString()+'</span></div>';
+  if (!list.length) { html += '<div class="empty-state"><div class="empty-icon">💳</div><p>אין תשלומים</p></div>'; }
+  else {
+    list.forEach(function(p){
+      html += '<div class="card"><div class="payment-card">'
+        +'<div class="payment-row"><span class="payment-amount">₪'+Number(p.amount||0).toLocaleString()+'</span><span class="payment-method">'+esc(p.method||'')+'</span></div>'
+        +'<div class="payment-meta">'+esc(p.studentName||'')+' · '+esc(p.date||'')+(p.receiptNumber?' · קבלה #'+esc(p.receiptNumber):'')+'</div>'
+        +(p.notes?'<div class="payment-meta" style="margin-top:2px">'+esc(p.notes)+'</div>':'')
+        +'<div style="display:flex;gap:5px;margin-top:7px">'
+        +'<button class="icon-btn btn-edit" onclick="openPaymentModal(\''+p.id+'\')">✏️</button>'
+        +'<button class="icon-btn btn-delete" onclick="doDeletePayment(\''+p.id+'\')">🗑️</button>'
+        +'</div>'
+        +'</div></div>';
+    });
+  }
+  document.getElementById('payments-list').innerHTML = html;
+}
+
+function filterPayments() { renderPayments(); }
+
+// ===== PAYMENT MODAL =====
+function openPaymentModal(id) {
+  fillStudentSelect('p-student');
+  document.getElementById('payment-id').value = id||'';
+  document.getElementById('payment-modal-title').textContent = id?'עריכת תשלום':'תשלום חדש';
+  if (id) {
+    var p = S.payments.find(function(x){ return x.id===id; });
+    if (p) {
+      document.getElementById('p-student').value = p.studentId||'';
+      document.getElementById('p-amount').value = p.amount||'';
+      document.getElementById('p-date').value = p.date?ilToISO(p.date):'';
+      document.getElementById('p-method').value = p.method||'מזומן';
+      document.getElementById('p-receipt').value = p.receiptNumber||'';
+      document.getElementById('p-notes').value = p.notes||'';
+    }
+  } else {
+    document.getElementById('p-student').value='';
+    document.getElementById('p-amount').value='';
+    document.getElementById('p-date').value = todayISO();
+    document.getElementById('p-method').value='מזומן';
+    document.getElementById('p-receipt').value='';
+    document.getElementById('p-notes').value='';
+  }
+  document.getElementById('payment-modal-overlay').classList.add('open');
+}
+function closePaymentModal() { document.getElementById('payment-modal-overlay').classList.remove('open'); }
+
+function savePayment() {
+  var sid = document.getElementById('p-student').value;
+  var amount = document.getElementById('p-amount').value;
+  var date = document.getElementById('p-date').value;
+  if (!sid) { showError('נא לבחור תלמיד'); return; }
+  if (!amount||isNaN(+amount)||+amount<=0) { showError('נא להזין סכום תקין'); return; }
+  if (!date) { showError('נא לבחור תאריך'); return; }
+  var st = S.students.find(function(x){ return x.id===sid; });
+  var obj = {
+    studentId:sid, studentName:st?st.name:'',
+    amount:+amount, date:isoToIL(date),
+    method: document.getElementById('p-method').value,
+    receiptNumber: document.getElementById('p-receipt').value.trim(),
+    notes: document.getElementById('p-notes').value.trim()
+  };
+  var id = document.getElementById('payment-id').value;
+  gasRun(id?'updatePayment':'createPayment', id?[id,obj]:obj, function(){
+    showSuccess(id?'תשלום עודכן':'תשלום נרשם');
+    closePaymentModal();
+    loadPayments();
+  });
+}
+
+function doDeletePayment(id) {
+  showConfirm('מחיקת תשלום','האם למחוק תשלום זה?','מחק','btn-danger',function(){
+    gasRun('deletePayment',id,function(){ showSuccess('תשלום נמחק'); loadPayments(); });
+  });
+}
+
+// ===== REPORTS =====
+function setReportTab(tab, btn) {
+  S.reportTab = tab;
+  document.querySelectorAll('#report-tabs .pill-tab').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  loadReports();
+}
+
+function loadReports() {
+  if (S.reportTab==='monthly') loadMonthlyReport();
+  else if (S.reportTab==='yearly') loadYearlyReport();
+  else if (S.reportTab==='debtors') loadDebtorsReport();
+  else loadCancellationsReport();
+}
+
+function destroyChart(id) { if (S.charts[id]) { S.charts[id].destroy(); delete S.charts[id]; } }
+
+function statCard(label, value) {
+  return '<div class="stat-card"><div class="stat-value">'+esc(String(value))+'</div><div class="stat-label">'+esc(label)+'</div></div>';
+}
+
+function loadMonthlyReport() {
+  var now = new Date(), y=now.getFullYear(), m=now.getMonth()+1;
+  gasRun('getMonthlyReport', [y,m], function(data){
+    data=data||{};
+    var html='<div class="stat-grid">'
+      +statCard('שיעורים',data.totalLessons||0)
+      +statCard('הכנסות','₪'+Number(data.totalRevenue||0).toLocaleString())
+      +statCard('תשלומים','₪'+Number(data.totalPayments||0).toLocaleString())
+      +statCard('תלמידים פעילים',data.activeStudents||0)
+      +'</div>'
+      +'<div class="card report-card"><div style="font-weight:700;margin-bottom:10px">שיעורים לפי סטטוס – '+hebrewMonth(m-1)+' '+y+'</div>'
+      +'<div class="chart-wrap"><canvas id="ch-monthly"></canvas></div></div>';
+    document.getElementById('reports-content').innerHTML = html;
+    destroyChart('ch-monthly');
+    var ctx = document.getElementById('ch-monthly');
+    if (ctx) {
+      S.charts['ch-monthly'] = new Chart(ctx, {
+        type:'bar',
+        data:{ labels:['מתוכנן','הושלם','בוטל','לא הגיע'], datasets:[{ label:'שיעורים', data:[data.planned||0,data.done||0,data.cancelled||0,data.absent||0], backgroundColor:['#3b82f6','#22c55e','#ef4444','#f97316'], borderRadius:8 }] },
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} }
+      });
+    }
+  });
+}
+
+function loadYearlyReport() {
+  var y=new Date().getFullYear();
+  gasRun('getYearlyOverview', y, function(data){
+    data=data||{};
+    var months=data.months||[];
+    var mNames=['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];
+    var revData=mNames.map(function(_,i){ var mo=months.find(function(x){return x.month===(i+1);}); return mo?(mo.revenue||0):0; });
+    var lesData=mNames.map(function(_,i){ var mo=months.find(function(x){return x.month===(i+1);}); return mo?(mo.lessons||0):0; });
+    var html='<div class="stat-grid">'
+      +statCard('סה"כ שיעורים',data.totalLessons||0)
+      +statCard('סה"כ הכנסות','₪'+Number(data.totalRevenue||0).toLocaleString())
+      +statCard('תלמידים חדשים',data.newStudents||0)
+      +statCard('ממוצע חודשי','₪'+Math.round(Number(data.totalRevenue||0)/12).toLocaleString())
+      +'</div>'
+      +'<div class="card report-card"><div style="font-weight:700;margin-bottom:10px">סקירה שנתית '+y+'</div>'
+      +'<div class="chart-wrap"><canvas id="ch-yearly"></canvas></div></div>';
+    document.getElementById('reports-content').innerHTML = html;
+    destroyChart('ch-yearly');
+    var ctx=document.getElementById('ch-yearly');
+    if (ctx) {
+      S.charts['ch-yearly']=new Chart(ctx,{
+        type:'line',
+        data:{ labels:mNames, datasets:[
+          {label:'הכנסות (₪)',data:revData,borderColor:'#e8a020',backgroundColor:'rgba(232,160,32,0.12)',tension:0.4,fill:true,yAxisID:'y'},
+          {label:'שיעורים',data:lesData,borderColor:'#1e3a5f',backgroundColor:'rgba(30,58,95,0.08)',tension:0.4,fill:false,yAxisID:'y1'}
+        ]},
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}},
+          scales:{ y:{beginAtZero:true,position:'right'}, y1:{beginAtZero:true,position:'left',grid:{drawOnChartArea:false}} } }
+      });
+    }
+  });
+}
+
+function loadDebtorsReport() {
+  gasRun('getDebtors', null, function(data){
+    data=(data||[]).sort(function(a,b){ return (a.balance||0)-(b.balance||0); });
+    var html='<div class="card report-card"><div style="font-weight:700;margin-bottom:12px">חייבים – '+data.length+' תלמידים</div>';
+    if (!data.length) html+='<div class="empty-state"><div class="empty-icon">✅</div><p>אין חייבים!</p></div>';
+    else data.forEach(function(d){
+      html+='<div class="debtor-row">'
+        +'<div><div class="debtor-name">'+esc(d.studentName||d.name||'')+'</div>'
+        +'<div class="debtor-phone">'+fmtPhone(d.phone||'')+'</div></div>'
+        +'<div class="debtor-amount">₪'+Math.abs(d.balance||0).toLocaleString()+'</div>'
+        +'</div>';
+    });
+    html+='</div>';
+    document.getElementById('reports-content').innerHTML = html;
+  });
+}
+
+function loadCancellationsReport() {
+  gasRun('getCancellationsReport', null, function(data){
+    data=data||{};
+    var html='<div class="stat-grid">'
+      +statCard('ביטולים',data.totalCancellations||0)
+      +statCard('לא הגיעו',data.totalAbsent||0)
+      +statCard('% ביטול',(data.cancellationRate||0)+'%')
+      +statCard('הפסד הכנסה','₪'+Number(data.lostRevenue||0).toLocaleString())
+      +'</div>'
+      +'<div class="card report-card"><div style="font-weight:700;margin-bottom:10px">ביטולים לפי חודש</div>'
+      +'<div class="chart-wrap"><canvas id="ch-canc"></canvas></div></div>';
+    document.getElementById('reports-content').innerHTML = html;
+    if (data.byMonth && data.byMonth.length) {
+      destroyChart('ch-canc');
+      var ctx=document.getElementById('ch-canc');
+      if (ctx) S.charts['ch-canc']=new Chart(ctx,{
+        type:'bar',
+        data:{ labels:data.byMonth.map(function(x){return x.label||'';}), datasets:[{label:'ביטולים',data:data.byMonth.map(function(x){return x.count||0;}),backgroundColor:'#ef4444',borderRadius:6}] },
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+      });
+    }
+  });
+}
+
+// ===== ARCHIVE =====
+function loadArchive() {
+  gasRun('getArchivedStudents', null, function(data){
+    data=data||[];
+    document.getElementById('archive-count').textContent = data.length;
+    if (!data.length) { document.getElementById('archive-list').innerHTML='<div class="empty-state"><div class="empty-icon">🗄️</div><p>הארכיון ריק</p></div>'; return; }
+    document.getElementById('archive-list').innerHTML = data.map(function(s){
+      return '<div class="card"><div class="archive-card">'
+        +'<div class="archive-avatar">'+initials(s.name)+'</div>'
+        +'<div class="archive-info"><div class="archive-name">'+esc(s.name)+'</div>'
+        +'<div class="archive-meta">'+fmtPhone(s.phone||'')+(s.startDate?' · '+esc(s.startDate):'')+'</div></div>'
+        +'<button class="icon-btn btn-restore" onclick="doRestoreStudent(\''+s.id+'\',\''+esc(s.name)+'\')" title="שחזר">↩️</button>'
+        +'</div></div>';
+    }).join('');
+  });
+}
+
+function doRestoreStudent(id, name) {
+  showConfirm('שחזור תלמיד','לשחזר את '+name+' מהארכיון?','שחזר','btn-success',function(){
+    gasRun('restoreFromArchive',id,function(){ showSuccess('תלמיד שוחזר'); loadArchive(); });
+  });
+}
+
+// ===== IMPORT =====
+function setImportTab(tab, btn) {
+  S.importTab = tab;
+  document.querySelectorAll('#import-tabs .pill-tab').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  var fnMap = {students:'importStudentsCSV', lessons:'importLessonsCSV', payments:'importPaymentsCSV'};
+  S.importFn = fnMap[tab];
+  S.importCsv = '';
+  buildImportUI();
+}
+
+function buildImportUI() {
+  var labels = {students:'תלמידים',lessons:'שיעורים',payments:'תשלומים'};
+  var examples = {
+    students:'שם,ת.ז.,טלפון,טלפון2,תאריך לידה,כתובת,תמחור,מחיר,סטטוס,הערות\nישראל ישראלי,123456789,0501234567,,01/01/1990,תל אביב,רגיל,160,פעיל,',
+    lessons:'מזהה תלמיד,שם תלמיד,תאריך,שעה,משך,סוג,סטטוס,מחיר,הערות\nSTU001,ישראל,01/06/2024,10:00,60,רגיל,הושלם,160,',
+    payments:'מזהה תלמיד,שם תלמיד,תאריך,סכום,אמצעי,מספר קבלה,הערות\nSTU001,ישראל,01/06/2024,500,מזומן,123,'
+  };
+  var tab = S.importTab;
+  var h = '<div class="card" style="padding:16px">'
+    +'<div style="font-weight:700;margin-bottom:12px;font-size:15px">יבוא '+labels[tab]+' מ-CSV</div>'
+    +'<div class="import-zone" id="import-zone" onclick="document.getElementById(\'imp-file\').click()"'
+      +' ondragover="event.preventDefault();this.classList.add(\'dragover\')"'
+      +' ondragleave="this.classList.remove(\'dragover\')"'
+      +' ondrop="handleImportDrop(event)">'
+    +'<div class="import-icon">📤</div>'
+    +'<div class="import-label">לחץ לבחירת קובץ CSV או גרור לכאן</div>'
+    +'</div>'
+    +'<input type="file" id="imp-file" accept=".csv,.txt" style="display:none" onchange="handleImportFile(event)">'
+    +'<div id="import-result"></div>'
+    +'<div style="margin-top:14px"><div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:5px">פורמט לדוגמה:</div>'
+    +'<textarea class="form-control" rows="3" style="font-size:11px;direction:ltr" readonly>'+esc(examples[tab])+'</textarea></div>'
+    +'<div class="form-actions" style="margin-top:12px"><button class="btn btn-primary" onclick="runImport()">יבא נתונים</button></div>'
+    +'</div>';
+  document.getElementById('import-content').innerHTML = h;
+}
+
+function handleImportFile(e) {
+  var file = e.target.files[0]; if (!file) return;
+  var r = new FileReader();
+  r.onload = function(ev){ S.importCsv = ev.target.result; document.getElementById('import-result').innerHTML = '<div class="import-result ok">קובץ נטען: '+esc(file.name)+'</div>'; };
+  r.readAsText(file,'UTF-8');
+}
+function handleImportDrop(e) {
+  e.preventDefault(); document.getElementById('import-zone').classList.remove('dragover');
+  var file = e.dataTransfer.files[0]; if (!file) return;
+  var r = new FileReader();
+  r.onload = function(ev){ S.importCsv = ev.target.result; document.getElementById('import-result').innerHTML = '<div class="import-result ok">קובץ נטען: '+esc(file.name)+'</div>'; };
+  r.readAsText(file,'UTF-8');
+}
+function runImport() {
+  if (!S.importCsv) { showError('נא לבחור קובץ CSV'); return; }
+  gasRun(S.importFn, S.importCsv, function(res){
+    res=res||{};
+    var msg = 'יובאו '+(res.imported||0)+' רשומות'+(res.errors&&res.errors.length?', '+res.errors.length+' שגיאות':'');
+    document.getElementById('import-result').innerHTML = '<div class="import-result '+(res.errors&&res.errors.length?'err':'ok')+'">'+esc(msg)+'</div>';
+    showSuccess('יבוא הסתיים');
+    S.importCsv='';
+  });
+}
+
+// ===== SETTINGS =====
+function loadSettings() {
+  gasRun('getAllConfig', null, function(cfg){ buildSettingsUI(cfg||{}); });
+}
+
+function buildSettingsUI(cfg) {
+  var h = '';
+  h += settingsGroup('בית הספר', [
+    settingField('שם בית הספר','school_name',cfg.school_name||'ברוך Next Generation','text'),
+    settingField('שם המדריך','instructor_name',cfg.instructor_name||'תור ברוך','text')
+  ]);
+  h += settingsGroup('תמחור', [
+    settingField('מחיר רגיל (₪)','price_regular',cfg.price_regular||'160','number'),
+    settingField('מחיר חבילה א (₪)','price_pkg_a',cfg.price_pkg_a||'180','number'),
+    settingField('מחיר חבילה ב (₪)','price_pkg_b',cfg.price_pkg_b||'191','number'),
+    settingField('מחיר פנימי (₪)','price_internal',cfg.price_internal||'175','number'),
+    settingField('מחיר מבחן בלבד (₪)','price_exam',cfg.price_exam||'200','number')
+  ]);
+  h += settingsGroup('WhatsApp', [
+    settingField('מספר שולח','wa_phone',cfg.wa_phone||'','tel'),
+    settingField('הודעת ברוכים הבאים','wa_welcome',cfg.wa_welcome||'ברוכים הבאים לבית הספר לנהיגה ברוך Next Generation! 🚗','textarea'),
+    settingField('תבנית תזכורת','wa_reminder',cfg.wa_reminder||'תזכורת: יש לך שיעור נהיגה מחר בשעה {time}','textarea')
+  ]);
+  h += '<div class="settings-group"><div class="settings-group-title">מראה</div>';
+  h += '<div class="settings-item"><span class="settings-label">מצב לילה</span>';
+  h += '<label class="toggle"><input type="checkbox" '+(S.theme==='dark'?'checked':'')+' onchange="toggleTheme()"><span class="toggle-slider"></span></label></div></div>';
+  h += '<div class="settings-group"><div class="settings-group-title">פעולות מערכת</div>';
+  h += '<div class="settings-item" onclick="recalcBalances()"><span class="settings-label">חשב מחדש יתרות לכל התלמידים</span><span>🔄</span></div>';
+  h += '<div class="settings-item" onclick="checkWAStatus()"><span class="settings-label">בדוק חיבור WhatsApp</span><span>📱</span></div>';
+  h += '</div>';
+  document.getElementById('settings-content').innerHTML = h;
+}
+
+function settingsGroup(title, items) {
+  return '<div class="settings-group"><div class="settings-group-title">'+esc(title)+'</div>'+items.join('')+'</div>';
+}
+function settingField(label, key, value, type) {
+  var inp = type==='textarea'
+    ? '<textarea class="form-control" id="cfg-'+key+'" rows="2" onblur="saveCfg(\''+key+'\',this.value)">'+esc(String(value))+'</textarea>'
+    : '<input class="form-control" id="cfg-'+key+'" type="'+type+'" value="'+esc(String(value))+'" onblur="saveCfg(\''+key+'\',this.value)">';
+  return '<div class="card" style="margin-bottom:8px;padding:12px 14px"><label class="form-label" style="margin-bottom:5px">'+esc(label)+'</label>'+inp+'</div>';
+}
+function saveCfg(key, val) {
+  gasRun('setConfig',[key,val],function(){ showToast('הגדרה נשמרה','success'); });
+}
+function recalcBalances() {
+  gasRun('recalculateAllBalances',null,function(){ showSuccess('יתרות חושבו מחדש'); });
+}
+function checkWAStatus() {
+  gasRun('checkWhatsAppStatus',null,function(d){ showToast(d&&d.connected?'✅ WhatsApp מחובר':'❌ WhatsApp לא מחובר', d&&d.connected?'success':'error'); });
+}
+
+// ===== GLOBAL SEARCH =====
+function onGlobalSearch(q) {
+  var btn = document.getElementById('search-clear-btn');
+  if (btn) btn.style.display = q ? 'block' : 'none';
+  if (!q || q.length < 2) { document.getElementById('search-results-overlay').classList.remove('open'); return; }
+  document.getElementById('search-results-overlay').classList.add('open');
+  gasRun('globalSearch', q, function(data){
+    data=data||{};
+    var students=data.students||[], lessons=data.lessons||[], payments=data.payments||[];
+    var h='';
+    if (students.length) {
+      h+='<div class="section-title" style="margin:8px 0 6px">תלמידים ('+students.length+')</div>';
+      students.forEach(function(s){ h+='<div class="card" style="padding:11px 13px;cursor:pointer" onclick="openStudentDetail(\''+s.id+'\');closeGlobalSearch()"><div style="font-weight:600">'+esc(s.name)+'</div><div style="font-size:12px;color:var(--text2)">'+fmtPhone(s.phone||'')+'</div></div>'; });
+    }
+    if (lessons.length) {
+      h+='<div class="section-title" style="margin:8px 0 6px">שיעורים ('+lessons.length+')</div>';
+      lessons.forEach(function(l){ h+='<div class="card" style="padding:11px 13px;cursor:pointer" onclick="openLessonModal(\''+l.id+'\');closeGlobalSearch()"><div style="font-weight:600">'+esc(l.studentName||'')+'</div><div style="font-size:12px;color:var(--text2)">'+esc(l.date||'')+' '+esc(l.time||'')+' · '+esc(l.status||'')+'</div></div>'; });
+    }
+    if (payments.length) {
+      h+='<div class="section-title" style="margin:8px 0 6px">תשלומים ('+payments.length+')</div>';
+      payments.forEach(function(p){ h+='<div class="card" style="padding:11px 13px"><div style="font-weight:600">'+esc(p.studentName||'')+'</div><div style="font-size:12px;color:var(--text2)">₪'+Number(p.amount||0).toLocaleString()+' · '+esc(p.date||'')+'</div></div>'; });
+    }
+    if (!h) h='<div class="empty-state"><div class="empty-icon">🔍</div><p>לא נמצאו תוצאות עבור "'+esc(q)+'"</p></div>';
+    document.getElementById('search-results-content').innerHTML = h;
+  });
+}
+
+function closeGlobalSearch() {
+  document.getElementById('search-results-overlay').classList.remove('open');
+  document.getElementById('header-search').value='';
+  var btn=document.getElementById('search-clear-btn'); if(btn) btn.style.display='none';
+}
+
+// ===== PRELOAD STUDENTS FOR DROPDOWNS =====
+(function(){
+  if (typeof google!=='undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(function(d){ S.students=d||[]; })
+      .withFailureHandler(function(){})
+      .getStudents({status:''});
+  }
+})();
+</script>
+</body>
+</html>
