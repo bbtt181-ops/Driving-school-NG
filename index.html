@@ -1273,9 +1273,11 @@ function submitNote(){
   const category=document.getElementById('note-category').value.trim();
   const err=document.getElementById('note-err');
   if(!content){err.textContent='התוכן חובה';err.style.display='block';return;}
-  const fn=_editNoteId?'updateNoteById':'addNote';
-  const arg=_editNoteId?_editNoteId:{content,category};
-  _call(fn,arg,_editNoteId?{content,category}:undefined).then(()=>{closeModal('notes-overlay');loadAll();}).catch(e=>{err.textContent='שגיאה: '+e;err.style.display='block';});
+  if(_editNoteId){
+    _call('updateNoteById',_editNoteId,{content,category}).then(()=>{closeModal('notes-overlay');loadAll();}).catch(e=>{err.textContent='שגיאה: '+e;err.style.display='block';});
+  }else{
+    _call('addNote',{content,category}).then(()=>{closeModal('notes-overlay');loadAll();}).catch(e=>{err.textContent='שגיאה: '+e;err.style.display='block';});
+  }
 }
 
 function _showNoteDelConfirm(){
