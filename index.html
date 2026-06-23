@@ -2,1897 +2,1287 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ברוך Next Generation</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DSP Drive</title>
 <style>
-:root {
-  --primary: #1e3a5f;
-  --primary-light: #2a5298;
-  --accent: #e8a020;
-  --accent-light: #f0b840;
-  --danger: #dc3545;
-  --success: #28a745;
-  --warning: #ffc107;
-  --bg: #f4f6fa;
-  --bg2: #ffffff;
-  --card: #ffffff;
-  --text: #1a1a2e;
-  --text2: #555577;
-  --text3: #888899;
-  --border: #e0e4ef;
-  --shadow: 0 2px 12px rgba(30,58,95,0.10);
-  --shadow2: 0 4px 24px rgba(30,58,95,0.18);
-  --nav-height: 64px;
-  --header-height: 58px;
-  --radius: 14px;
-  --radius2: 8px;
-  --transition: 0.22s cubic-bezier(.4,0,.2,1);
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f23;--bg2:#16162a;--bg3:#1e1e3a;--bg4:#2a2a4a;
+  --text:#e2e8f0;--text2:#8888aa;--text3:#6666aa;
+  --border:#1e1e3a;--border2:#2a2a4a;
+  --accent:#6366f1;--accent2:#8b5cf6;
+  --red:#f87171;--green:#4ade80;--blue:#60a5fa;--orange:#fb923c;--yellow:#fbbf24;
+  --red-bg:rgba(239,68,68,.15);--green-bg:rgba(74,222,128,.15);
+  --blue-bg:rgba(96,165,250,.15);--orange-bg:rgba(251,146,60,.15);
+  --shadow:0 4px 20px rgba(0,0,0,.4);
+  --radius:12px;
 }
-[data-theme="dark"] {
-  --bg: #0f1923; --bg2: #162030; --card: #1a2840; --text: #e8edf5;
-  --text2: #9bacc4; --text3: #607090; --border: #243450;
-  --shadow: 0 2px 12px rgba(0,0,0,0.35); --shadow2: 0 4px 24px rgba(0,0,0,0.5);
+body.light{
+  --bg:#f7f8fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --text:#1a1a2e;--text2:#475569;--text3:#94a3b8;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --red:#dc2626;--green:#16a34a;--blue:#2563eb;--orange:#ea580c;--yellow:#d97706;
+  --red-bg:rgba(220,38,38,.1);--green-bg:rgba(22,163,74,.1);
+  --blue-bg:rgba(37,99,235,.1);--orange-bg:rgba(234,88,12,.1);
+  --shadow:0 4px 20px rgba(0,0,0,.1);
 }
-*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
-html,body { height: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #334155; color: var(--text); font-size: 15px; }
-body { overflow: hidden; }
+body.light select option{background:#fff}
+body.light .kpi.red .kpi-val{color:#dc2626}
+body.light .kpi.green .kpi-val{color:#16a34a}
+body.light .kpi.blue .kpi-val{color:#2563eb}
+body.light .kpi.purple .kpi-val{color:#7c3aed}
+body.light .kanban-card{background:#f8fafc}
+body.light tr:hover td{background:#f1f5f9}
+body.light .modal-box{background:#fff}
+body.light .ev-popup{background:#fff;box-shadow:0 8px 30px rgba(0,0,0,.15)}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;font-size:14px}
+button{font-family:inherit;cursor:pointer;border:none}
+input,select,textarea{font-family:inherit;font-size:13px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;color:var(--text);width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
+select option{background:var(--bg2)}
+label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
 
-#app-wrapper { display: flex; flex-direction: column; height: 100vh; max-width: 480px; margin: 0 auto; position: relative; overflow: hidden; background: var(--bg); box-shadow: 0 0 40px rgba(0,0,0,0.15); }
-#app-header {
-  flex-shrink: 0; z-index: 100;
-  background: var(--primary); height: var(--header-height);
-  display: flex; align-items: center; gap: 10px; padding: 0 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-}
-#header-logo { font-size: 17px; font-weight: 700; color: var(--accent); white-space: nowrap; flex-shrink: 0; }
-#header-search-wrap { flex: 1; position: relative; }
-#header-search {
-  width: 100%; padding: 8px 36px 8px 12px; border: none; border-radius: 20px;
-  background: rgba(255,255,255,0.15); color: #fff; font-size: 14px; outline: none;
-}
-#header-search::placeholder { color: rgba(255,255,255,0.6); }
-#header-search:focus { background: rgba(255,255,255,0.25); }
-#search-clear-btn {
-  position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
-  background: none; border: none; color: rgba(255,255,255,0.7); font-size: 16px;
-  cursor: pointer; display: none; padding: 2px;
-}
-#header-actions { display: flex; gap: 4px; flex-shrink: 0; }
-.header-btn {
-  background: none; border: none; color: rgba(255,255,255,0.85); font-size: 19px;
-  width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-}
-.header-btn:hover { background: rgba(255,255,255,0.12); }
+/* ── SIDEBAR ── */
+.sidebar{width:220px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width .2s}
+.logo{padding:18px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.logo-text h2{font-size:14px;font-weight:700}
+.logo-text p{font-size:10px;color:var(--accent);margin-top:1px}
+.nav{flex:1;padding:12px 8px;overflow-y:auto}
+.nav-section{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:10px 10px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);margin-bottom:2px;transition:all .15s;position:relative}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 15px rgba(99,102,241,.35)}
+.nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{background:#ef4444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-right:auto}
+.nav-dot{width:6px;height:6px;border-radius:50%;margin-right:auto;background:var(--green)}
+.sidebar-footer{padding:10px 8px;border-top:1px solid var(--border)}
 
-#main-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding-top: 0; padding-bottom: calc(var(--nav-height) + 16px); -webkit-overflow-scrolling: touch; }
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.topbar h1{font-size:17px;font-weight:700;flex:1}
+.tb-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600}
+.tb-btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.tb-btn-ghost:hover{background:var(--bg4);color:var(--text)}
+.tb-btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.pending-chip{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;display:none}
 
-#bottom-nav {
-  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 100;
-  width: 100%; max-width: 480px;
-  background: var(--bg2); border-top: 1px solid var(--border);
-  height: var(--nav-height); display: flex; align-items: stretch;
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.10);
-}
-.nav-tab {
-  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 2px; cursor: pointer; border: none; background: none;
-  color: var(--text3); font-size: 10px; font-weight: 500;
-  min-width: 0; padding: 4px 2px 2px; -webkit-tap-highlight-color: transparent;
-}
-.nav-tab .nav-icon { font-size: 21px; line-height: 1; transition: transform var(--transition); }
-.nav-tab.active { color: var(--accent); }
-.nav-tab.active .nav-icon { transform: translateY(-2px); }
+.pages{flex:1;overflow:hidden;position:relative}
+.page{display:none;height:100%;overflow-y:auto;padding:20px}
+.page.active{display:block}
 
-.page { display: none; padding: 12px; }
-.page.active { display: block; }
+/* ── DASHBOARD ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:var(--bg2);border-radius:var(--radius);padding:18px;border:1px solid var(--border);position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:-10px;right:-10px;width:70px;height:70px;border-radius:50%;opacity:.1}
+.kpi.red::after{background:#ef4444}.kpi.green::after{background:#22c55e}
+.kpi.blue::after{background:#3b82f6}.kpi.purple::after{background:#8b5cf6}
+.kpi-icon{font-size:22px;margin-bottom:10px}
+.kpi-val{font-size:24px;font-weight:800;margin-bottom:3px}
+.kpi-lbl{font-size:11px;color:var(--text3)}
+.kpi.red .kpi-val{color:var(--red)}.kpi.green .kpi-val{color:var(--green)}
+.kpi.blue .kpi-val{color:var(--blue)}.kpi.purple .kpi-val{color:#a78bfa}
 
-.card {
-  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
-  margin-bottom: 10px; overflow: hidden;
-}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden}
+.card-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-head h3{font-size:13px;font-weight:700}
+.card-head span{font-size:11px;color:var(--text3)}
+.card-body{padding:12px}
 
-.student-card { padding: 13px 14px; display: flex; align-items: flex-start; gap: 11px; }
-.student-avatar {
-  width: 44px; height: 44px; border-radius: 50%; background: var(--primary);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 17px; font-weight: 700; color: var(--accent); flex-shrink: 0;
-}
-.student-info { flex: 1; min-width: 0; cursor: pointer; }
-.student-name { font-weight: 600; font-size: 15px; }
-.student-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
-.student-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-top: 4px; }
-.badge-active { background: #e6f7ec; color: #1a7a3a; }
-.badge-inactive { background: #fff3cd; color: #856404; }
-.student-balance { font-size: 13px; font-weight: 600; margin-top: 2px; }
-.balance-owe { color: var(--danger); }
-.balance-ok { color: var(--success); }
-.student-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
-.icon-btn {
-  width: 34px; height: 34px; border-radius: 8px; border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; font-size: 15px;
-  -webkit-tap-highlight-color: transparent;
-}
-.btn-edit { background: #e8f0fe; color: var(--primary); }
-.btn-delete { background: #fde8ea; color: var(--danger); }
-.btn-archive { background: #fff3cd; color: #856404; }
-.btn-restore { background: #e6f7ec; color: var(--success); }
-.btn-wa { background: #e6f7ec; color: #25d366; }
+/* kanban */
+.kanban-card{background:var(--bg);border-radius:8px;padding:10px 12px;margin-bottom:6px;border:1px solid var(--border);cursor:pointer;transition:border-color .15s}
+.kanban-card:hover{border-color:var(--accent)}
+.kc-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.kc-meta{font-size:11px;color:var(--text3)}
+.kc-price{font-size:12px;font-weight:700;margin-top:5px}
 
-.page-search { display: flex; gap: 8px; margin-bottom: 12px; }
-.search-input {
-  flex: 1; padding: 10px 13px; border: 1.5px solid var(--border); border-radius: 10px;
-  background: var(--card); color: var(--text); font-size: 14px; outline: none;
-}
-.search-input:focus { border-color: var(--primary-light); }
-.filter-select {
-  padding: 10px 8px; border: 1.5px solid var(--border); border-radius: 10px;
-  background: var(--card); color: var(--text); font-size: 13px; outline: none; cursor: pointer;
-}
+/* debtors table */
+table{width:100%;border-collapse:collapse}
+th{padding:9px 14px;text-align:right;font-size:11px;color:var(--text3);font-weight:600;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.4px}
+td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--bg)}
+tr:hover td{background:var(--bg3);cursor:pointer}
+.initials{width:28px;height:28px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-left:8px;flex-shrink:0}
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-orange{background:var(--orange-bg);color:var(--orange)}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
 
-.fab {
-  position: absolute; left: 18px; bottom: calc(var(--nav-height) + 16px); z-index: 90;
-  width: 56px; height: 56px; border-radius: 50%;
-  background: var(--accent); color: var(--primary); border: none; cursor: pointer;
-  font-size: 28px; font-weight: 700; box-shadow: var(--shadow2);
-  display: flex; align-items: center; justify-content: center;
-  transition: transform var(--transition); -webkit-tap-highlight-color: transparent;
-}
-.fab:active { transform: scale(0.91); }
+/* ── CALENDAR ── */
+#cal-wrap{background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-direction:column;height:100%}
+#cal-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+#cal-title{font-size:16px;font-weight:700;flex:1}
+.cal-nav{background:none;color:var(--text2);font-size:18px;padding:4px 8px;border-radius:8px}
+.cal-nav:hover{background:var(--bg3);color:var(--text)}
+.cal-view-tabs{display:flex;border:1px solid var(--border2);border-radius:8px;overflow:hidden}
+.cvt{padding:5px 12px;background:none;font-size:12px;color:var(--text2);border-left:1px solid var(--border2)}
+.cvt:first-child{border-left:none}
+.cvt.active{background:var(--accent);color:#fff}
+#cal-body{flex:1;overflow-y:auto}
 
-.modal-overlay {
-  position: absolute; inset: 0; z-index: 200; background: rgba(0,0,0,0.5);
-  display: flex; align-items: flex-end; justify-content: center;
-  opacity: 0; pointer-events: none; transition: opacity 0.25s;
-}
-.modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal {
-  background: var(--bg2); border-radius: var(--radius) var(--radius) 0 0;
-  width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto;
-  transform: translateY(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-}
-.modal-overlay.open .modal { transform: translateY(0); }
-.modal-header {
-  position: sticky; top: 0; background: var(--bg2); z-index: 1;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 15px 16px 11px; border-bottom: 1px solid var(--border);
-}
-.modal-title { font-size: 16px; font-weight: 700; }
-.modal-close {
-  width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--border);
-  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: var(--text2);
-}
-.modal-close:hover { background: var(--danger); color: #fff; }
-.modal-body { padding: 14px 16px; }
+.dv-grid{display:grid;grid-template-columns:52px 1fr}
+.dv-time-slot{height:48px;border-bottom:1px solid var(--bg3);display:flex;align-items:flex-start;justify-content:flex-end;padding:2px 6px 0;font-size:11px;color:var(--text3)}
+.dv-events-col{position:relative}
+.dv-hour-row{height:48px;border-bottom:1px solid var(--bg3)}
+.ev-block{position:absolute;border-radius:8px;padding:3px 8px;font-size:12px;overflow:hidden;cursor:pointer;min-height:20px;transition:filter .1s}
+.ev-block:hover{filter:brightness(1.15)}
+.ev-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-time{font-size:10px;opacity:.8}
+.ev-planned{background:var(--blue-bg);border-right:3px solid var(--blue);color:var(--blue)}
+.ev-done{background:var(--green-bg);border-right:3px solid var(--green);color:var(--green)}
+.ev-canceled{background:var(--bg3);border-right:3px solid var(--text3);color:var(--text3)}
+.ev-absent{background:var(--red-bg);border-right:3px solid var(--red);color:var(--red)}
+.ev-pending{border-style:dashed!important}
+.ev-test{border-top:3px solid var(--yellow)!important}
 
-.form-group { margin-bottom: 13px; }
-.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
-.form-control {
-  width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px;
-  background: var(--card); color: var(--text); font-size: 14px; outline: none; font-family: inherit;
-  transition: border-color var(--transition);
+.wv-head{display:grid;border-bottom:2px solid var(--border)}
+.wv-day-head{text-align:center;padding:8px 4px;font-size:12px;border-left:1px solid var(--border)}
+.wv-day-head.today-col{color:var(--accent);font-weight:700}
+.wv-row{display:grid;border-bottom:1px solid var(--bg3)}
+.wv-time-cell{font-size:10px;color:var(--text3);padding:4px 6px;border-left:1px solid var(--border)}
+.wv-day-cell{border-left:1px solid var(--border);min-height:36px;position:relative}
+.wv-ev{font-size:11px;border-radius:4px;padding:1px 4px;margin:1px 2px;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+.mv-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.mv-head-cell{text-align:center;padding:8px;font-size:11px;font-weight:600;color:var(--text3);border-bottom:1px solid var(--border)}
+.mv-day{min-height:80px;border-left:1px solid var(--border);border-bottom:1px solid var(--border);padding:4px;cursor:pointer}
+.mv-day:hover{background:var(--bg3)}
+.mv-day.today{background:rgba(99,102,241,.1)}
+.mv-day.other-month{opacity:.4}
+.mv-day-num{font-size:11px;font-weight:600;margin-bottom:2px}
+.mv-today-num{background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center}
+.mv-ev{font-size:10px;border-radius:3px;padding:1px 4px;margin-bottom:1px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer}
+
+/* ── STUDENTS ── */
+#students-page{display:flex;flex-direction:column;gap:12px}
+.search-bar{display:flex;gap:8px;align-items:center}
+.search-bar input{max-width:260px}
+.table-wrap{background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border);overflow:auto;flex:1}
+
+/* ── MODALS ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.overlay.open{display:flex}
+.modal{background:var(--bg2);border-radius:16px;padding:22px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;border:1px solid var(--border2);box-shadow:var(--shadow);animation:slideIn .15s ease}
+.modal-wide{width:640px}
+@keyframes slideIn{from{transform:translateY(-16px);opacity:0}to{transform:none;opacity:1}}
+.modal h2{font-size:16px;font-weight:700;margin-bottom:16px}
+.form-row{margin-bottom:12px}
+.form-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border)}
+.err-msg{color:var(--red);font-size:12px;margin-top:4px;display:none}
+.err-msg.show{display:block}
+.age-display{font-size:12px;color:var(--text3);margin-top:3px}
+.age-error{color:var(--red)!important}
+
+.btn-modal{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600}
+.btn-primary2{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-outline2{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn-outline2:hover{background:var(--bg4);color:var(--text)}
+.btn-danger2{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+
+/* price radio */
+.price-group{display:flex;flex-wrap:wrap;gap:6px}
+.price-opt input{display:none}
+.price-opt label{display:block;padding:5px 12px;border:1px solid var(--border2);border-radius:20px;cursor:pointer;font-size:12px;color:var(--text2);transition:all .1s;width:auto}
+.price-opt input:checked+label{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* lesson type */
+.lt-group{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.lt-opt input{display:none}
+.lt-opt label{display:block;padding:5px 12px;border:1px solid var(--border2);border-radius:16px;cursor:pointer;font-size:12px;color:var(--text2);transition:all .1s}
+.lt-opt input:checked+label{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* status sel */
+.status-sel option[value="מתוכנן"]{color:#60a5fa}
+.status-sel option[value="בוצע"]{color:#4ade80}
+.status-sel option[value="בוטל"]{color:#9ca3af}
+.status-sel option[value="לא הגיע"]{color:#f87171}
+
+/* event popup */
+#ev-popup{display:none;position:fixed;z-index:600;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;box-shadow:var(--shadow);padding:14px;min-width:230px;animation:slideIn .12s ease}
+#ev-popup.open{display:block}
+#ev-popup .pop-name{font-weight:700;font-size:14px;margin-bottom:2px}
+#ev-popup .pop-sub{font-size:11px;color:var(--text3);margin-bottom:10px}
+#ev-popup .pop-actions{display:flex;gap:6px;border-top:1px solid var(--border);padding-top:10px}
+.pop-btn{flex:1;padding:7px 0;font-size:12px;border-radius:8px;background:var(--bg3);color:var(--text);border:1px solid var(--border2);font-weight:600}
+.pop-btn:hover{background:var(--bg4)}
+.pop-btn.danger{color:var(--red);border-color:rgba(248,113,113,.3);background:var(--red-bg)}
+.pop-close{position:absolute;top:8px;left:10px;background:none;font-size:14px;color:var(--text3);padding:2px 6px}
+
+/* student card */
+.card-hdr{background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card-hdr h3{font-size:15px;font-weight:700;color:#fff}
+.card-hdr p{font-size:12px;color:rgba(255,255,255,.75);margin-top:3px}
+.stat-row{display:flex;gap:10px;margin-bottom:14px}
+.stat-box{flex:1;background:var(--bg3);border-radius:10px;padding:10px;text-align:center}
+.stat-box .sv{font-size:18px;font-weight:800}
+.stat-box .sl{font-size:10px;color:var(--text3);margin-top:2px}
+.stat-debt .sv{color:var(--red)}
+.stat-paid .sv{color:var(--green)}
+.sec-title{font-size:13px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:6px;margin:14px 0 8px}
+.hist-table th{background:var(--bg3)}
+.test-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.test-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* pending */
+.pend-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.pend-row input[type=checkbox]{width:auto;accent-color:var(--accent)}
+
+/* confirm */
+#confirm-overlay .modal{width:360px;text-align:center}
+#confirm-overlay .modal h2{font-size:18px}
+#confirm-overlay p{color:var(--text2);font-size:13px;margin-bottom:16px}
+#confirm-overlay .modal-footer{justify-content:center;border:none}
+
+/* reminder */
+#reminder-wrap{position:fixed;top:60px;left:16px;z-index:500;display:flex;flex-direction:column;gap:8px}
+.reminder{background:var(--bg2);border:1px solid var(--yellow);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);animation:slideIn .2s ease}
+.reminder span{flex:1;font-size:13px}
+.reminder button{background:none;color:var(--text3);font-size:16px;padding:2px 6px}
+
+/* FAB */
+#fab{position:fixed;bottom:24px;left:24px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;width:50px;height:50px;border-radius:16px;font-size:24px;box-shadow:0 6px 20px rgba(99,102,241,.5);display:flex;align-items:center;justify-content:center;z-index:200;transition:transform .15s}
+#fab:hover{transform:scale(1.08)}
+
+.spinner{text-align:center;padding:40px;color:var(--text3)}
+.spin{display:inline-block;width:24px;height:24px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:640px){
+  .sidebar{display:none}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .dash-grid{grid-template-columns:1fr}
+  .form-2{grid-template-columns:1fr}
 }
-.form-control:focus { border-color: var(--primary-light); }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.form-actions { display: flex; gap: 10px; margin-top: 16px; }
-.btn {
-  flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
-  cursor: pointer; min-height: 44px; font-family: inherit;
-}
-.btn-primary { background: var(--primary); color: #fff; }
-.btn-primary:hover { background: var(--primary-light); }
-.btn-accent { background: var(--accent); color: var(--primary); }
-.btn-danger { background: var(--danger); color: #fff; }
-.btn-secondary { background: var(--border); color: var(--text); }
-.btn-success { background: var(--success); color: #fff; }
-.btn-sm { flex: none; padding: 8px 14px; font-size: 13px; min-height: 36px; }
-
-#toast-container { position: absolute; top: calc(var(--header-height)+8px); right: 0; left: 0; z-index: 300; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
-.toast {
-  padding: 11px 18px; border-radius: 10px; font-size: 14px; font-weight: 600;
-  box-shadow: var(--shadow2); max-width: 340px; text-align: center;
-  animation: toastIn 0.28s cubic-bezier(.4,0,.2,1) forwards;
-}
-.toast-success { background: var(--success); color: #fff; }
-.toast-error { background: var(--danger); color: #fff; }
-.toast-info { background: var(--primary); color: #fff; }
-@keyframes toastIn { from { opacity:0; transform: translateY(-16px) scale(0.94); } to { opacity:1; transform: none; } }
-
-.spinner-overlay {
-  position: absolute; inset: 0; z-index: 400; background: rgba(0,0,0,0.22);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none; transition: opacity 0.2s;
-}
-.spinner-overlay.show { opacity: 1; pointer-events: all; }
-.spinner { width: 46px; height: 46px; border: 5px solid rgba(255,255,255,0.25); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.confirm-overlay {
-  position: absolute; inset: 0; z-index: 300; background: rgba(0,0,0,0.5);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none; transition: opacity 0.2s; padding: 20px;
-}
-.confirm-overlay.open { opacity: 1; pointer-events: all; }
-.confirm-box {
-  background: var(--bg2); border-radius: var(--radius); padding: 22px 18px; max-width: 310px; width: 100%;
-  box-shadow: var(--shadow2); transform: scale(0.93); transition: transform 0.22s;
-}
-.confirm-overlay.open .confirm-box { transform: scale(1); }
-.confirm-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
-.confirm-msg { font-size: 14px; color: var(--text2); margin-bottom: 18px; line-height: 1.5; }
-.confirm-actions { display: flex; gap: 10px; }
-
-.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 0 2px; }
-.section-title { font-size: 16px; font-weight: 700; }
-.section-count { font-size: 12px; color: var(--text3); background: var(--border); padding: 2px 8px; border-radius: 10px; }
-
-.empty-state { text-align: center; padding: 44px 20px; color: var(--text3); }
-.empty-state .empty-icon { font-size: 48px; margin-bottom: 10px; }
-.empty-state p { font-size: 14px; }
-
-.cal-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 12px; padding: 10px 14px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
-}
-.cal-nav-btn {
-  width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--border);
-  background: none; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;
-  color: var(--text);
-}
-.cal-title { font-size: 15px; font-weight: 700; text-align: center; }
-.cal-view-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
-.cal-view-tab {
-  flex: 1; padding: 8px; border: 1.5px solid var(--border); border-radius: 8px;
-  background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text2);
-  transition: all var(--transition); font-family: inherit;
-}
-.cal-view-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-
-.day-slots { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-.day-slot { display: flex; min-height: 48px; border-bottom: 1px solid var(--border); }
-.slot-time { width: 50px; padding: 6px 6px; font-size: 11px; color: var(--text3); font-weight: 600; flex-shrink: 0; border-left: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; }
-.slot-content { flex: 1; padding: 4px 6px; display: flex; flex-direction: column; gap: 3px; }
-.lesson-chip {
-  padding: 5px 9px; border-radius: 7px; font-size: 12px; font-weight: 600;
-  cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 6px;
-}
-.status-planned { background: #dbeafe; color: #1e40af; }
-.status-done { background: #dcfce7; color: #166534; }
-.status-cancelled { background: #fee2e2; color: #991b1b; }
-.status-absent { background: #ffedd5; color: #9a3412; }
-
-.week-wrap { overflow-x: auto; }
-.week-grid { display: grid; grid-template-columns: 44px repeat(7,1fr); min-width: 420px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--card); }
-.week-header { background: var(--primary); color: #fff; padding: 7px 2px; text-align: center; font-size: 11px; font-weight: 600; }
-.week-time-col { color: var(--text3); font-size: 11px; font-weight: 600; text-align: center; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); display: flex; align-items: center; justify-content: center; min-height: 34px; }
-.week-cell { border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); min-height: 34px; padding: 2px; }
-.week-lesson { border-radius: 4px; font-size: 10px; padding: 2px 3px; margin-bottom: 2px; cursor: pointer; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-
-.month-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
-.month-day-header { text-align: center; font-size: 11px; font-weight: 600; color: var(--text3); padding: 4px 0; }
-.month-day { background: var(--card); border-radius: 6px; min-height: 58px; padding: 4px; cursor: pointer; border: 1.5px solid transparent; }
-.month-day:hover { background: var(--border); }
-.month-day.today { border-color: var(--accent); }
-.month-day.other-month { opacity: 0.38; pointer-events: none; }
-.month-day-num { font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 2px; }
-.month-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin: 1px; }
-
-.payment-card { padding: 13px 15px; }
-.payment-row { display: flex; align-items: center; justify-content: space-between; }
-.payment-amount { font-size: 17px; font-weight: 700; color: var(--success); }
-.payment-method { font-size: 11px; color: var(--text3); background: var(--border); padding: 2px 8px; border-radius: 8px; font-weight: 600; }
-.payment-meta { font-size: 12px; color: var(--text2); margin-top: 3px; }
-
-.report-card { padding: 14px 15px; margin-bottom: 12px; }
-.chart-wrap { position: relative; height: 210px; }
-.stat-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 9px; margin-bottom: 12px; }
-.stat-card { background: var(--card); border-radius: var(--radius2); padding: 13px 12px; text-align: center; box-shadow: var(--shadow); }
-.stat-value { font-size: 21px; font-weight: 700; color: var(--primary); }
-[data-theme="dark"] .stat-value { color: var(--accent); }
-.stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
-
-.debtor-row { padding: 11px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
-.debtor-row:last-child { border-bottom: none; }
-.debtor-name { font-weight: 600; font-size: 14px; }
-.debtor-phone { font-size: 11px; color: var(--text3); }
-.debtor-amount { font-size: 15px; font-weight: 700; color: var(--danger); }
-
-.archive-card { padding: 13px 14px; display: flex; align-items: center; gap: 11px; }
-.archive-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--text3); flex-shrink: 0; }
-.archive-info { flex: 1; }
-.archive-name { font-weight: 600; font-size: 14px; }
-.archive-meta { font-size: 12px; color: var(--text2); }
-
-.import-zone {
-  border: 2px dashed var(--border); border-radius: var(--radius); padding: 30px 20px; text-align: center;
-  cursor: pointer; transition: border-color var(--transition), background var(--transition); user-select: none;
-}
-.import-zone:hover, .import-zone.dragover { border-color: var(--primary-light); background: rgba(30,58,95,0.05); }
-.import-icon { font-size: 38px; margin-bottom: 8px; color: var(--text3); }
-.import-label { font-size: 14px; color: var(--text2); }
-.import-result { margin-top: 12px; padding: 11px; border-radius: 8px; font-size: 13px; }
-.import-result.ok { background: #e6f7ec; color: #166534; }
-.import-result.err { background: #fee2e2; color: #991b1b; }
-
-.settings-group { margin-bottom: 18px; }
-.settings-group-title { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-right: 4px; }
-[data-theme="dark"] .settings-group-title { color: var(--accent); }
-.settings-item {
-  background: var(--card); border-radius: var(--radius2); padding: 13px 15px;
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 6px; box-shadow: var(--shadow); cursor: pointer;
-}
-.settings-label { font-size: 14px; font-weight: 600; }
-
-.toggle { position: relative; width: 44px; height: 24px; }
-.toggle input { opacity: 0; width: 0; height: 0; }
-.toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--border); border-radius: 12px; transition: background var(--transition); }
-.toggle-slider:before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform var(--transition); }
-.toggle input:checked + .toggle-slider { background: var(--success); }
-.toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
-
-#search-results-overlay { position: absolute !important; top: var(--header-height); right: 0; left: 0;
-  position: fixed; top: var(--header-height); right: 0; left: 0; bottom: 0; z-index: 150;
-  background: var(--bg); display: none; overflow-y: auto; padding: 12px;
-}
-#search-results-overlay.open { display: block; }
-
-.pill-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
-.pill-tabs::-webkit-scrollbar { display: none; }
-.pill-tab {
-  flex-shrink: 0; padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
-  background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text2);
-  transition: all var(--transition); font-family: inherit;
-}
-.pill-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-
-.lesson-card { padding: 13px 14px; display: flex; align-items: flex-start; gap: 11px; cursor: pointer; }
-.lesson-status-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
-.lesson-info { flex: 1; }
-.lesson-main { font-weight: 600; font-size: 14px; }
-.lesson-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
-.lesson-actions { display: flex; gap: 5px; flex-shrink: 0; }
-
-.modal-tabs { display: flex; border-bottom: 1.5px solid var(--border); margin-bottom: 12px; }
-.modal-tab { flex: 1; padding: 9px; border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text3); border-bottom: 2.5px solid transparent; font-family: inherit; }
-.modal-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-
-.info-row { display: flex; gap: 8px; align-items: baseline; margin-bottom: 7px; }
-.info-key { font-size: 12px; color: var(--text3); font-weight: 600; min-width: 90px; flex-shrink: 0; }
-.info-val { font-size: 13px; color: var(--text); }
-
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-@media (min-width: 500px) { .stat-grid { grid-template-columns: repeat(4,1fr); } }
-@media (max-width: 380px) { .form-row { grid-template-columns: 1fr; } }
-
-/* ===== DASHBOARD ===== */
-.dashboard { padding-bottom: 8px; }
-.dash-header {
-  background: linear-gradient(135deg, #1E3A8A 0%, #1e3a5f 60%, #2a9d8f 100%);
-  padding: 18px 16px 16px; color: white; position: relative;
-}
-.dash-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.dash-school { font-size: 13px; font-weight: 700; opacity: 0.85; }
-.dash-date { font-size: 12px; opacity: 0.75; margin-bottom: 2px; }
-.dash-sync { font-size: 11px; opacity: 0.65; margin-bottom: 10px; }
-.dash-hello { display: block; font-size: 13px; opacity: 0.85; margin-bottom: 2px; }
-.dash-title { display: block; font-size: 21px; font-weight: 800; }
-.dash-stats-row {
-  background: rgba(255,255,255,0.13); border-radius: 12px;
-  padding: 11px 14px; margin-top: 12px;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.dash-stat-box { text-align: center; }
-.dash-stat-val { font-size: 26px; font-weight: 800; line-height: 1; }
-.dash-stat-label { font-size: 11px; opacity: 0.8; margin-top: 2px; }
-.dash-alert {
-  margin: 12px 12px 0; padding: 12px 14px;
-  background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px;
-}
-.dash-alert-title { font-size: 13px; font-weight: 700; color: #991B1B; margin-bottom: 8px; }
-.dash-debtor-item {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 5px 0; border-bottom: 1px solid #FECACA; font-size: 13px; color: #1a1a2e;
-}
-.dash-debtor-item:last-child { border-bottom: none; }
-.dash-debtor-amt { font-weight: 700; color: #dc3545; }
-.dash-kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 12px 0; }
-.dash-kpi-card {
-  background: var(--card); border-radius: 12px; padding: 14px;
-  box-shadow: var(--shadow); position: relative; overflow: hidden;
-}
-.dash-kpi-card::after {
-  content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%;
-}
-.kpi-blue::after { background: #1E40AF; }
-.kpi-green::after { background: #10B981; }
-.kpi-orange::after { background: #F59E0B; }
-.kpi-teal::after { background: #06B6D4; }
-.kpi-icon { font-size: 22px; margin-bottom: 6px; }
-.kpi-val { font-size: 20px; font-weight: 800; line-height: 1; margin-bottom: 3px; color: var(--primary); }
-.kpi-label { font-size: 11px; color: var(--text2); font-weight: 500; }
-.dash-section { margin: 12px 12px 0; }
-.dash-section-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
-.dash-list { display: flex; flex-direction: column; gap: 6px; }
-.dash-test-item {
-  background: var(--card); border-radius: 10px; padding: 11px 13px;
-  display: flex; justify-content: space-between; align-items: center;
-  box-shadow: var(--shadow);
-}
-.dash-test-name { font-size: 14px; font-weight: 600; }
-.dash-test-time { font-size: 11px; color: var(--text3); margin-top: 2px; }
-.dash-days-badge {
-  background: #FFFBEB; color: #92400E; border-radius: 20px;
-  padding: 4px 10px; font-size: 12px; font-weight: 700; white-space: nowrap;
-}
-.dash-days-badge.urgent { background: #FEF2F2; color: #991B1B; }
-.dash-empty { text-align: center; padding: 20px; color: var(--text3); font-size: 13px; }
-
 </style>
 </head>
-<body data-theme="light">
-<div id="app-wrapper">
+<body>
 
-<div id="spinner-overlay" class="spinner-overlay"><div class="spinner"></div></div>
-<div id="toast-container"></div>
-
-<div id="confirm-overlay" class="confirm-overlay">
-  <div class="confirm-box">
-    <div class="confirm-title" id="confirm-title">אישור פעולה</div>
-    <div class="confirm-msg" id="confirm-msg">האם אתה בטוח?</div>
-    <div class="confirm-actions">
-      <button class="btn btn-secondary" onclick="closeConfirm(false)">ביטול</button>
-      <button class="btn btn-danger" id="confirm-ok-btn" onclick="closeConfirm(true)">אישור</button>
-    </div>
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">🚗</div>
+    <div class="logo-text"><h2>DSP Drive</h2><p>בית ספר לנהיגה</p></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">ראשי</div>
+    <div class="nav-item active" onclick="showPage('dash',this)"><span class="nav-icon">📊</span>דשבורד</div>
+    <div class="nav-item" onclick="showPage('cal',this)"><span class="nav-icon">🗓️</span>קלנדר</div>
+    <div class="nav-section">ניהול</div>
+    <div class="nav-item" onclick="showPage('students',this)"><span class="nav-icon">👥</span>תלמידים</div>
+    <div class="nav-item" onclick="showPage('archive',this)"><span class="nav-icon">📦</span>ארכיון</div>
+    <div class="nav-item" onclick="showPage('notes',this)"><span class="nav-icon">📝</span>הערות</div>
+    <div class="nav-section">כספים</div>
+    <div class="nav-item" id="nav-pending" onclick="openPendingPanel()"><span class="nav-icon">⏳</span>ממתינים<span class="nav-badge" id="pending-count" style="display:none">0</span></div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="nav-item" onclick="loadAll()"><span class="nav-icon">🔄</span>רענן</div>
   </div>
 </div>
 
-<header id="app-header">
-  <div id="header-logo">BNG ✦</div>
-  <div id="header-search-wrap">
-    <input type="search" id="header-search" placeholder="חיפוש גלובלי..." autocomplete="off"
-      oninput="onGlobalSearch(this.value)" onfocus="if(this.value.length>=2)document.getElementById('search-results-overlay').classList.add('open')">
-    <button id="search-clear-btn" onclick="closeGlobalSearch()">✕</button>
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="page-title">דשבורד</h1>
+    <span class="pending-chip" id="pending-chip" onclick="openPendingPanel()">⏳ <span id="chip-count">0</span> ממתינים לאישור</span>
+    <button class="tb-btn tb-btn-ghost" id="theme-toggle" onclick="toggleTheme()" title="החלף מצב תצוגה">🌙</button>
+    <button class="tb-btn tb-btn-ghost" onclick="openAddStudent()">+ תלמיד</button>
+    <button class="tb-btn tb-btn-primary" onclick="openAddLesson()">+ שיעור</button>
   </div>
-  <div id="header-actions">
-    <button class="header-btn" id="theme-btn" onclick="toggleTheme()" title="ערכת נושא">🌙</button>
-    <button class="header-btn" onclick="refreshCurrentPage()" title="רענן">🔄</button>
-  </div>
-</header>
 
-<div id="search-results-overlay">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-    <span class="section-title">תוצאות חיפוש</span>
-    <button class="btn btn-secondary btn-sm" onclick="closeGlobalSearch()">סגור</button>
-  </div>
-  <div id="search-results-content"></div>
-</div>
+  <div class="pages">
 
-<div id="main-content">
-
-  <!-- HOME DASHBOARD -->
-  <div id="page-home" class="page active">
-  <div class="dashboard">
-    <div class="dash-header">
-      <div class="dash-header-top">
-        <div class="dash-school">ברוך Next Generation</div>
-        <button onclick="toggleTheme()" style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px;color:#fff">🌙</button>
+    <!-- DASHBOARD -->
+    <div id="dash-page" class="page active">
+      <div class="kpi-row">
+        <div class="kpi red"><div class="kpi-icon">⚠️</div><div class="kpi-val" id="kpi-debt">₪0</div><div class="kpi-lbl">חוב פתוח כולל</div></div>
+        <div class="kpi green"><div class="kpi-icon">💵</div><div class="kpi-val" id="kpi-income">₪0</div><div class="kpi-lbl">הכנסות החודש</div></div>
+        <div class="kpi blue"><div class="kpi-icon">📚</div><div class="kpi-val" id="kpi-lessons">0</div><div class="kpi-lbl">שיעורים החודש</div></div>
+        <div class="kpi purple"><div class="kpi-icon">👤</div><div class="kpi-val" id="kpi-students">0</div><div class="kpi-lbl">תלמידים פעילים</div></div>
       </div>
-      <div class="dash-date" id="dashDate"></div>
-      <div class="dash-sync" id="dashSync">⟳ מסנכרן...</div>
-      <span class="dash-hello">שלום, תור ברוך 👋</span>
-      <span class="dash-title">לוח בקרה</span>
-    </div>
-    <div class="dash-stats-row">
-      <div class="dash-stat-box"><div class="dash-stat-val" id="dAS">—</div><div class="dash-stat-label">תלמידים פעילים</div></div>
-      <div class="dash-stat-box"><div class="dash-stat-val" id="dTL">—</div><div class="dash-stat-label">שיעורים היום</div></div>
-    </div>
-    <div class="dash-alert" id="dashAlert" style="display:none">
-      <div class="dash-alert-title">⚠️ חייבים מעל 1,000₪:</div>
-      <div id="dashDebtorsList"></div>
-    </div>
-    <div class="dash-kpi-grid">
-      <div class="dash-kpi-card kpi-blue"><div class="kpi-icon">📊</div><div class="kpi-val" id="dTD">—</div><div class="kpi-label">חוב כולל</div></div>
-      <div class="dash-kpi-card kpi-green"><div class="kpi-icon">💰</div><div class="kpi-val" id="dMI">—</div><div class="kpi-label">הכנסה החודש</div></div>
-      <div class="dash-kpi-card kpi-orange"><div class="kpi-icon">🎯</div><div class="kpi-val" id="dNT">—</div><div class="kpi-label">קרובים לטסט</div></div>
-      <div class="dash-kpi-card kpi-teal"><div class="kpi-icon">👥</div><div class="kpi-val" id="dAS2">—</div><div class="kpi-label">תלמידים פעילים</div></div>
-    </div>
-    <div class="dash-section">
-      <div class="dash-section-title">🎯 טסטים בשבועיים הקרובים</div>
-      <div id="dashTests" class="dash-list"></div>
-    </div>
-  </div>
-</div>
-
-  <!-- STUDENTS -->
-  <div id="page-students" class="page">
-    <div class="page-search">
-      <input type="search" class="search-input" id="students-search" placeholder="חפש תלמיד..." oninput="filterStudents(this.value)">
-      <select class="filter-select" id="students-filter" onchange="filterStudents(document.getElementById('students-search').value)">
-        <option value="">הכל</option>
-        <option value="פעיל">פעיל</option>
-        <option value="לא פעיל">לא פעיל</option>
-        <option value="סיים">סיים</option>
-      </select>
-    </div>
-    <div class="section-header">
-      <span class="section-title">תלמידים</span>
-      <span class="section-count" id="students-count">0</span>
-    </div>
-    <div id="students-list"></div>
-  </div>
-
-  <!-- CALENDAR -->
-  <div id="page-calendar" class="page">
-    <div class="cal-view-tabs">
-      <button class="cal-view-tab active" onclick="setCalView('day',this)">יום</button>
-      <button class="cal-view-tab" onclick="setCalView('week',this)">שבוע</button>
-      <button class="cal-view-tab" onclick="setCalView('month',this)">חודש</button>
-    </div>
-    <div class="cal-nav">
-      <button class="cal-nav-btn" onclick="calPrev()">›</button>
-      <span class="cal-title" id="cal-title">היום</span>
-      <button class="cal-nav-btn" onclick="calNext()">‹</button>
-    </div>
-    <div id="cal-content"></div>
-  </div>
-
-  <!-- PAYMENTS -->
-  <div id="page-payments" class="page">
-    <div class="page-search">
-      <input type="search" class="search-input" id="payments-search" placeholder="חפש תשלום..." oninput="filterPayments(this.value)">
-      <select class="filter-select" id="payments-method-filter" onchange="filterPayments(document.getElementById('payments-search').value)">
-        <option value="">כל שיטות</option>
-        <option>מזומן</option><option>העברה</option><option>צ'ק</option>
-        <option>אשראי</option><option>ביט</option><option>פייבוקס</option>
-      </select>
-    </div>
-    <div class="section-header">
-      <span class="section-title">תשלומים</span>
-      <span class="section-count" id="payments-count">0</span>
-    </div>
-    <div id="payments-list"></div>
-  </div>
-
-  <!-- REPORTS -->
-  <div id="page-reports" class="page">
-    <div class="pill-tabs" id="report-tabs">
-      <button class="pill-tab active" onclick="setReportTab('monthly',this)">חודשי</button>
-      <button class="pill-tab" onclick="setReportTab('yearly',this)">שנתי</button>
-      <button class="pill-tab" onclick="setReportTab('debtors',this)">חייבים</button>
-      <button class="pill-tab" onclick="setReportTab('cancellations',this)">ביטולים</button>
-    </div>
-    <div id="reports-content"></div>
-  </div>
-
-  <!-- ARCHIVE -->
-  <div id="page-archive" class="page">
-    <div class="section-header">
-      <span class="section-title">ארכיון תלמידים</span>
-      <span class="section-count" id="archive-count">0</span>
-    </div>
-    <div id="archive-list"></div>
-  </div>
-
-  <!-- IMPORT -->
-  <div id="page-import" class="page">
-    <div class="pill-tabs" id="import-tabs">
-      <button class="pill-tab active" onclick="setImportTab('students',this)">תלמידים</button>
-      <button class="pill-tab" onclick="setImportTab('lessons',this)">שיעורים</button>
-      <button class="pill-tab" onclick="setImportTab('payments',this)">תשלומים</button>
-    </div>
-    <div id="import-content"></div>
-  </div>
-
-  <!-- SETTINGS -->
-  <div id="page-settings" class="page">
-    <div id="settings-content"></div>
-  </div>
-
-</div>
-
-<nav id="bottom-nav">
-  <button class="nav-tab active" onclick="switchPage('home',this)">🏠<span>ראשי</span></button>
-    <button class="nav-tab" onclick="switchPage('students',this)"><span class="nav-icon">👥</span><span>תלמידים</span></button>
-  <button class="nav-tab" onclick="switchPage('calendar',this)"><span class="nav-icon">📅</span><span>לוח שנה</span></button>
-  <button class="nav-tab" onclick="switchPage('payments',this)"><span class="nav-icon">💳</span><span>תשלומים</span></button>
-  <button class="nav-tab" onclick="switchPage('reports',this)"><span class="nav-icon">📊</span><span>דוחות</span></button>
-  <button class="nav-tab" onclick="switchPage('archive',this)"><span class="nav-icon">🗄️</span><span>ארכיון</span></button>
-  <button class="nav-tab" onclick="switchPage('import',this)"><span class="nav-icon">📥</span><span>יבוא</span></button>
-  <button class="nav-tab" onclick="switchPage('settings',this)"><span class="nav-icon">⚙️</span><span>הגדרות</span></button>
-</nav>
-
-<button class="fab" id="main-fab" onclick="fabAction()">＋</button>
-
-<!-- STUDENT MODAL -->
-<div class="modal-overlay" id="student-modal-overlay" onclick="if(event.target===this)closeStudentModal()">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="student-modal-title">תלמיד חדש</span>
-      <button class="modal-close" onclick="closeStudentModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="student-id">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">שם מלא *</label>
-          <input class="form-control" id="s-name" placeholder="שם פרטי ומשפחה">
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-head"><h3>📅 שיעורי היום</h3><span id="today-date"></span></div>
+          <div class="card-body" id="today-lessons-list"><div class="spinner"><div class="spin"></div></div></div>
         </div>
-        <div class="form-group">
-          <label class="form-label">תעודת זהות</label>
-          <input class="form-control" id="s-tz" placeholder="000000000" maxlength="9" oninput="validateTZField()">
-          <div id="s-tz-msg" style="font-size:11px;margin-top:3px"></div>
+        <div class="card">
+          <div class="card-head"><h3>🔴 חייבים עיקריים</h3><span id="debtors-count"></span></div>
+          <div style="overflow:auto;max-height:320px">
+            <table><thead><tr><th>תלמיד</th><th>חוב</th><th>סטטוס</th></tr></thead>
+            <tbody id="debtors-body"><tr><td colspan="3" class="spinner"><div class="spin"></div></td></tr></tbody></table>
+          </div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">טלפון *</label>
-          <input class="form-control" id="s-phone" placeholder="050-0000000" type="tel" oninput="validatePhoneField()">
-          <div id="s-phone-msg" style="font-size:11px;margin-top:3px"></div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div id="cal-page" class="page" style="padding:0;height:100%">
+      <div id="cal-wrap">
+        <div id="cal-header">
+          <button class="cal-nav" onclick="calNav(-1)">›</button>
+          <button class="cal-nav" onclick="calNav(1)">‹</button>
+          <button class="cal-nav" onclick="calGoToday()" style="font-size:12px;padding:5px 10px;border:1px solid var(--border2);border-radius:8px">היום</button>
+          <span id="cal-title"></span>
+          <div style="flex:1"></div>
+          <div class="cal-view-tabs">
+            <button class="cvt active" onclick="setCalView('day',this)">יום</button>
+            <button class="cvt" onclick="setCalView('week',this)">שבוע</button>
+            <button class="cvt" onclick="setCalView('month',this)">חודש</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">טלפון נוסף</label>
-          <input class="form-control" id="s-phone2" placeholder="050-0000000" type="tel">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">אימייל</label>
-        <input class="form-control" id="s-email" type="email" placeholder="example@email.com" oninput="validateEmailField()">
-        <div id="s-email-msg" style="font-size:11px;margin-top:3px"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">תאריך לידה</label>
-          <input class="form-control" id="s-birth" type="date" onchange="validateBirthField()">
-          <div id="s-birth-msg" style="font-size:11px;margin-top:3px"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">תאריך התחלה</label>
-          <input class="form-control" id="s-start" type="date">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">כתובת</label>
-        <input class="form-control" id="s-address" placeholder="רחוב, עיר">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">תמחור</label>
-          <select class="form-control" id="s-pricing" onchange="updatePricingField()">
-            <option value="רגיל">רגיל</option>
-            <option value="חבילה א">חבילה א</option>
-            <option value="חבילה ב">חבילה ב</option>
-            <option value="פנימי">פנימי</option>
-            <option value="מבחן בלבד">מבחן בלבד</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">מחיר לשיעור (₪)</label>
-          <select class="form-control" id="s-price-select" onchange="onPriceSelect(this.value)">
-            <option value="160">160 ₪</option>
-            <option value="170">170 ₪</option>
-            <option value="180">180 ₪</option>
-            <option value="190">190 ₪</option>
-            <option value="custom">אחר...</option>
-          </select>
-          <input class="form-control" id="s-price" type="number" min="0" value="160" style="margin-top:6px;display:none" placeholder="הזן מחיר">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">סטטוס</label>
-        <select class="form-control" id="s-status">
-          <option value="פעיל">פעיל</option>
-          <option value="לא פעיל">לא פעיל</option>
-          <option value="סיים">סיים</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">הערות</label>
-        <textarea class="form-control" id="s-notes" rows="2" placeholder="הערות נוספות..."></textarea>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-secondary" onclick="closeStudentModal()">ביטול</button>
-        <button class="btn btn-primary" onclick="saveStudent()">שמור</button>
+        <div id="cal-body"><div class="spinner"><div class="spin"></div></div></div>
       </div>
     </div>
+
+    <!-- STUDENTS -->
+    <div id="students-page" class="page">
+      <div id="students-page-inner" style="display:flex;flex-direction:column;gap:12px;height:100%">
+        <div class="search-bar">
+          <input type="search" placeholder="חיפוש תלמיד..." oninput="filterStudents()" id="students-search">
+        </div>
+        <div class="table-wrap" id="students-table-wrap"><div class="spinner"><div class="spin"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ARCHIVE -->
+    <div id="archive-page" class="page">
+      <div class="table-wrap" id="archive-table-wrap"><div class="spinner"><div class="spin"></div></div></div>
+    </div>
+
+    <!-- NOTES -->
+    <div id="notes-page" class="page">
+      <button class="tb-btn tb-btn-primary" onclick="openAddNote()" style="margin-bottom:14px">+ הערה חדשה</button>
+      <div id="notes-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
+    </div>
+
   </div>
 </div>
 
-<!-- STUDENT DETAIL MODAL -->
-<div class="modal-overlay" id="student-detail-overlay" onclick="if(event.target===this)closeStudentDetail()">
-  <div class="modal" id="student-detail-modal">
-    <div class="modal-header">
-      <span class="modal-title" id="sd-title">פרטי תלמיד</span>
-      <button class="modal-close" onclick="closeStudentDetail()">✕</button>
-    </div>
-    <div class="modal-body" id="sd-body"></div>
+<!-- FAB -->
+<button id="fab" onclick="openAddLesson()">+</button>
+
+<!-- REMINDERS -->
+<div id="reminder-wrap"></div>
+
+<!-- EVENT POPUP -->
+<div id="ev-popup">
+  <button class="pop-close" onclick="closeEvPopup()">✕</button>
+  <div class="pop-name" id="pop-name"></div>
+  <div class="pop-sub" id="pop-sub"></div>
+  <div class="pop-actions">
+    <button class="pop-btn" onclick="popEdit()">✏️ ערוך</button>
+    <button class="pop-btn" onclick="popDuplicate()">📋 שכפל</button>
+    <button class="pop-btn danger" onclick="popDelete()">🗑️ מחק</button>
   </div>
 </div>
 
 <!-- LESSON MODAL -->
-<div class="modal-overlay" id="lesson-modal-overlay" onclick="if(event.target===this)closeLessonModal()">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="lesson-modal-title">שיעור חדש</span>
-      <button class="modal-close" onclick="closeLessonModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="lesson-id">
-      <div class="form-group">
-        <label class="form-label">תלמיד *</label>
-        <select class="form-control" id="l-student"></select>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">תאריך *</label>
-          <input class="form-control" id="l-date" type="date">
-        </div>
-        <div class="form-group">
-          <label class="form-label">שעה *</label>
-          <input class="form-control" id="l-time" type="time">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">משך (דקות)</label>
-          <select class="form-control" id="l-duration">
-            <option value="45">45 דקות</option>
-            <option value="60" selected>60 דקות</option>
-            <option value="90">90 דקות</option>
-            <option value="120">120 דקות</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">סוג שיעור</label>
-          <select class="form-control" id="l-type">
-            <option value="רגיל">רגיל</option>
-            <option value="פנימי">פנימי</option>
-            <option value="מבחן">מבחן</option>
-            <option value="שיעור נוסף">שיעור נוסף</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">מחיר (₪)</label>
-          <input class="form-control" id="l-price" type="number" min="0" placeholder="160">
-        </div>
-        <div class="form-group">
-          <label class="form-label">סטטוס</label>
-          <select class="form-control" id="l-status">
-            <option value="מתוכנן">מתוכנן</option>
-            <option value="הושלם">הושלם</option>
-            <option value="בוטל">בוטל</option>
-            <option value="לא הגיע">לא הגיע</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">הערות</label>
-        <textarea class="form-control" id="l-notes" rows="2" placeholder="הערות..."></textarea>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-secondary" onclick="closeLessonModal()">ביטול</button>
-        <button class="btn btn-primary" onclick="saveLesson()">שמור</button>
-      </div>
-    </div>
+<div class="overlay" id="lesson-overlay">
+<div class="modal">
+  <h2 id="lesson-modal-title">הוספת שיעור</h2>
+  <div class="form-row"><label>תלמיד</label><select id="ls-student" onchange="onLessonStudentChange()"><option value="">— בחר תלמיד —</option></select></div>
+  <div class="form-row"><label>סוג שיעור</label><div class="lt-group" id="lt-group"></div></div>
+  <div class="form-row" id="ls-s2-wrap" style="display:none"><label>תלמיד שני (טסט)</label><select id="ls-student2"><option value="">— אופציונלי —</option></select></div>
+  <div class="form-2">
+    <div class="form-row"><label>תאריך</label><input type="date" id="ls-date"></div>
+    <div class="form-row"><label>שעת התחלה</label><div style="display:flex;gap:6px;direction:ltr"><select id="ls-hour" style="width:80px"></select><select id="ls-min" style="width:80px"></select></div></div>
   </div>
+  <div class="form-2">
+    <div class="form-row"><label>מחיר ₪</label><input type="number" id="ls-price" min="0"></div>
+    <div class="form-row"><label>סטטוס</label><select id="ls-status" class="status-sel"><option value="מתוכנן">מתוכנן</option><option value="בוצע">בוצע</option><option value="בוטל">בוטל</option><option value="לא הגיע">לא הגיע</option></select></div>
+  </div>
+  <div class="form-row"><label>הערה</label><textarea id="ls-note" rows="2"></textarea></div>
+  <div class="err-msg" id="ls-err"></div>
+  <div class="modal-footer">
+    <button class="btn-modal btn-outline2" onclick="closeModal('lesson-overlay')">ביטול</button>
+    <button class="btn-modal btn-danger2" id="ls-del-btn" style="display:none" onclick="_showDelConfirm()">🗑️ מחק</button>
+    <button class="btn-modal btn-primary2" id="ls-save-btn" onclick="submitLesson()">שמור</button>
+  </div>
+</div>
+</div>
+
+<!-- STUDENT MODAL -->
+<div class="overlay" id="student-overlay">
+<div class="modal modal-wide">
+  <h2 id="student-modal-title">תלמיד חדש</h2>
+  <div class="form-2">
+    <div class="form-row"><label>שם פרטי *</label><input type="text" id="st-first"></div>
+    <div class="form-row"><label>שם משפחה *</label><input type="text" id="st-last"></div>
+  </div>
+  <div class="form-2">
+    <div class="form-row"><label>ת"ז *</label><input type="text" id="st-tz" maxlength="9" oninput="validateTZUI()" placeholder="9 ספרות"><div class="err-msg" id="st-tz-err"></div></div>
+    <div class="form-row"><label>טלפון</label><input type="tel" id="st-phone"></div>
+  </div>
+  <div class="form-2">
+    <div class="form-row"><label>תאריך לידה *</label><input type="date" id="st-dob" oninput="calcAgeUI()"><div id="st-age-display" class="age-display"></div></div>
+    <div class="form-row"><label>מייל</label><input type="email" id="st-email" oninput="validateEmailUI()" placeholder="name@gmail.com"><div class="err-msg" id="st-email-err"></div></div>
+  </div>
+  <div class="form-row"><label>מחיר לשיעור *</label><div class="price-group" id="price-group"></div></div>
+  <div class="form-row"><label>יתרת פתיחה ₪</label><input type="number" id="st-open-balance" value="0"></div>
+  <div class="form-row"><label>הערות</label><textarea id="st-notes" rows="2"></textarea></div>
+  <div class="err-msg" id="st-err"></div>
+  <div class="modal-footer">
+    <button class="btn-modal btn-outline2" onclick="closeModal('student-overlay')">ביטול</button>
+    <button class="btn-modal btn-danger2" id="st-del-btn" style="display:none" onclick="deleteStudentConfirm()">🗑️ מחק</button>
+    <button class="btn-modal btn-primary2" onclick="submitStudent()">שמור</button>
+  </div>
+</div>
+</div>
+
+<!-- STUDENT CARD -->
+<div class="overlay" id="card-overlay">
+<div class="modal modal-wide" id="card-inner"><div class="spinner"><div class="spin"></div></div></div>
 </div>
 
 <!-- PAYMENT MODAL -->
-<div class="modal-overlay" id="payment-modal-overlay" onclick="if(event.target===this)closePaymentModal()">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="payment-modal-title">תשלום חדש</span>
-      <button class="modal-close" onclick="closePaymentModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="payment-id">
-      <div class="form-group">
-        <label class="form-label">תלמיד *</label>
-        <select class="form-control" id="p-student"></select>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">סכום (₪) *</label>
-          <input class="form-control" id="p-amount" type="number" min="0" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">תאריך *</label>
-          <input class="form-control" id="p-date" type="date">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">אמצעי תשלום</label>
-          <select class="form-control" id="p-method">
-            <option>מזומן</option><option>העברה</option><option>צ'ק</option>
-            <option>אשראי</option><option>ביט</option><option>פייבוקס</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">מספר קבלה</label>
-          <input class="form-control" id="p-receipt" placeholder="000">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">הערות</label>
-        <textarea class="form-control" id="p-notes" rows="2"></textarea>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-secondary" onclick="closePaymentModal()">ביטול</button>
-        <button class="btn btn-primary" onclick="savePayment()">שמור</button>
-      </div>
+<div class="overlay" id="payment-overlay">
+<div class="modal">
+  <h2>רישום תשלום</h2>
+  <input type="hidden" id="pay-sid">
+  <div class="form-row"><div id="pay-name" style="font-weight:700;padding:4px 0;font-size:15px"></div></div>
+  <div class="form-2">
+    <div class="form-row"><label>סכום ₪</label><input type="number" id="pay-amount" min="1"></div>
+    <div class="form-row"><label>תאריך</label><input type="date" id="pay-date"></div>
+  </div>
+  <div class="form-2">
+    <div class="form-row"><label>שיטה</label><select id="pay-method"><option>מזומן</option><option>ביט</option><option>העברה</option><option>אשראי</option></select></div>
+    <div class="form-row"><label>קבלה</label><input type="text" id="pay-receipt"></div>
+  </div>
+  <div class="err-msg" id="pay-err"></div>
+  <div class="modal-footer">
+    <button class="btn-modal btn-outline2" onclick="closeModal('payment-overlay')">ביטול</button>
+    <button class="btn-modal btn-primary2" onclick="submitPayment()">שמור</button>
+  </div>
+</div>
+</div>
+
+<!-- PENDING MODAL -->
+<div class="overlay" id="pending-overlay">
+<div class="modal modal-wide">
+  <h2>⏳ שיעורים ממתינים לאישור</h2>
+  <div id="pending-list"></div>
+  <div class="modal-footer">
+    <button class="btn-modal btn-outline2" onclick="closeModal('pending-overlay')">סגור</button>
+    <button class="btn-modal btn-primary2" onclick="confirmSelected()">✅ אשר נבחרים</button>
+  </div>
+</div>
+</div>
+
+<!-- CONFIRM -->
+<div class="overlay" id="confirm-overlay">
+<div class="modal">
+  <h2 id="conf-title"></h2>
+  <p id="conf-body"></p>
+  <div class="modal-footer">
+    <button class="btn-modal btn-outline2" onclick="closeModal('confirm-overlay')">ביטול</button>
+    <button class="btn-modal" id="conf-ok"></button>
+  </div>
+</div>
+</div>
+
+<!-- TEST RESULT -->
+<div class="overlay" id="test-overlay">
+<div class="modal">
+  <h2>תוצאת טסט</h2>
+  <input type="hidden" id="tr-eid"><input type="hidden" id="tr-sid">
+  <div style="display:flex;gap:12px;margin:16px 0;justify-content:center">
+    <button class="btn-modal btn-primary2" style="font-size:15px;padding:12px 24px" onclick="setTestResult('עבר')">✅ עבר</button>
+    <button class="btn-modal btn-danger2" style="font-size:15px;padding:12px 24px" onclick="openTestFail()">❌ נכשל</button>
+  </div>
+  <div class="modal-footer"><button class="btn-modal btn-outline2" onclick="closeModal('test-overlay')">ביטול</button></div>
+</div>
+</div>
+
+<!-- TEST FAIL -->
+<div class="overlay" id="testfail-overlay">
+<div class="modal">
+  <h2>נכשל — מה הלאה?</h2>
+  <div style="display:flex;gap:12px;margin:16px 0;justify-content:center;flex-wrap:wrap">
+    <button class="btn-modal btn-primary2" style="padding:12px 20px" onclick="handleTestFail('new')">📅 טסט חדש</button>
+    <button class="btn-modal btn-outline2" style="padding:12px 20px;border-color:var(--orange);color:var(--orange)" onclick="handleTestFail('pause')">⏸️ הפסק זמנית</button>
+  </div>
+  <div class="modal-footer"><button class="btn-modal btn-outline2" onclick="closeModal('testfail-overlay')">ביטול</button></div>
+</div>
+</div>
+
+<!-- NOTES MODAL -->
+<div class="overlay" id="notes-overlay">
+<div class="modal">
+  <h2 id="notes-modal-title">הוספת הערה</h2>
+  <div style="margin-bottom:12px">
+    <label>קטגוריה</label>
+    <input type="text" id="note-category" placeholder="לדוגמה: הערות כלליות, תוכניות">
+  </div>
+  <div style="margin-bottom:12px">
+    <label>תוכן</label>
+    <textarea id="note-content" rows="6" maxlength="500" placeholder="כתוב את ההערה שלך כאן..."></textarea>
+    <div style="font-size:11px;color:var(--text3);margin-top:4px"><span id="note-chars">0</span>/500</div>
+  </div>
+  <div id="note-err" style="color:var(--red);font-size:12px;margin-bottom:12px;display:none"></div>
+  <div class="modal-footer">
+    <button class="btn-modal btn-danger2" id="note-delete-btn" style="display:none" onclick="_showNoteDelConfirm()">🗑️ מחיקה</button>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn-modal btn-outline2" onclick="closeModal('notes-overlay')">ביטול</button>
+      <button class="btn-modal btn-primary2" onclick="submitNote()">שמור</button>
     </div>
   </div>
 </div>
+</div>
 
 <script>
-'use strict';
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let _students=[], _lessons=[], _balances={}, _notes=[], _editNoteId=null;
+let _calView='day', _calDate=new Date();
+let _editLessonId=null, _editStudentId=null;
+let _popLessonId=null;
+let _selPriceType='regular', _selPrice=180;
+const MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+const DAYS=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
 
-function loadDashboard() {
-  var days=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-  var months=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-  var now=new Date();
-  var el=document.getElementById('dashDate');
-  if(el) el.textContent='יום '+days[now.getDay()]+', '+now.getDate()+' '+months[now.getMonth()];
-  var syncEl=document.getElementById('dashSync');
-  gasCall('getDashboard',{},function(data){
-    if(syncEl) syncEl.textContent='✓ מסונכרן';
-    function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
-    set('dAS',data.activeStudents); set('dAS2',data.activeStudents);
-    set('dTL',data.todayLessons);
-    set('dTD','₪'+Math.round(data.totalDebt||0).toLocaleString());
-    set('dMI','₪'+Math.round(data.monthlyIncome||0).toLocaleString());
-    set('dNT',data.nearTestCount||0);
-    var alert=document.getElementById('dashAlert');
-    var dlist=document.getElementById('dashDebtorsList');
-    if(data.topDebtors&&data.topDebtors.length&&alert&&dlist){
-      alert.style.display='block';
-      dlist.innerHTML=data.topDebtors.map(function(d){
-        return '<div class="dash-debtor-item"><span>'+d.name+'</span><span class="dash-debtor-amt">₪'+Math.round(d.balance).toLocaleString()+'</span></div>';
-      }).join('');
-    }
-    var ut=document.getElementById('dashTests');
-    if(ut){
-      if(!data.upcomingTests||!data.upcomingTests.length){
-        ut.innerHTML='<div class="dash-empty">אין טסטים בשבועיים הקרובים</div>';
-      }else{
-        ut.innerHTML=data.upcomingTests.map(function(t){
-          var lbl=t.daysUntil===0?'היום':t.daysUntil===1?'מחר':t.daysUntil+' ימים';
-          return '<div class="dash-test-item"><div><div class="dash-test-name">'+t.studentName+'</div><div class="dash-test-time">'+t.startTime+' · '+t.date+'</div></div><div class="dash-days-badge'+(t.daysUntil<=2?' urgent':'')+'">' +lbl+'</div></div>';
-        }).join('');
-      }
-    }
-  },function(){if(syncEl)syncEl.textContent='⚠ שגיאה';});
-}
-
-// ===== STATE =====
-var S = {
-  page: 'home',
-  theme: 'light',
-  students: [],
-  payments: [],
-  balances: {},
-  calView: 'week',
-  calDate: new Date(),
-  reportTab: 'monthly',
-  importTab: 'students',
-  importFn: 'importStudentsCSV',
-  importCsv: '',
-  confirmCb: null,
-  charts: {},
-  currentLessonData: null
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+window.onload=()=>{
+  _initTimePickers();
+  _buildPriceGroup();
+  _buildLTGroup();
+  document.getElementById('today-date').textContent=_todayStr();
+  loadAll();
+  _startReminders();
 };
 
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', function() {
-  loadPage('home');
-  buildImportUI();
-  buildSettingsUI({});
-});
-
-// ===== THEME =====
-function toggleTheme() {
-  S.theme = S.theme === 'light' ? 'dark' : 'light';
-  document.body.setAttribute('data-theme', S.theme);
-  document.getElementById('theme-btn').textContent = S.theme === 'dark' ? '☀️' : '🌙';
-}
-
-// ===== NAV =====
-function switchPage(page, tabEl) {
-  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
-  document.getElementById('page-' + page).classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
-  if (tabEl) tabEl.classList.add('active');
-  S.page = page;
-  closeGlobalSearch();
-  loadPage(page);
-}
-
-function loadPage(page) {
-  if (page === 'home') { loadDashboard(); return; }
-  if (page === 'students') loadStudents();
-  else if (page === 'calendar') loadCalendar();
-  else if (page === 'payments') loadPayments();
-  else if (page === 'reports') loadReports();
-  else if (page === 'archive') loadArchive();
-  else if (page === 'import') buildImportUI();
-  else if (page === 'settings') loadSettings();
-}
-
-function refreshCurrentPage() { loadPage(S.page); }
-
-// ===== SPINNER =====
-function showSpinner() { document.getElementById('spinner-overlay').classList.add('show'); }
-function hideSpinner() { document.getElementById('spinner-overlay').classList.remove('show'); }
-
-// ===== TOAST =====
-function showToast(msg, type) {
-  var el = document.createElement('div');
-  el.className = 'toast toast-' + (type || 'info');
-  el.textContent = msg;
-  document.getElementById('toast-container').appendChild(el);
-  setTimeout(function() { el.remove(); }, 3200);
-}
-function showError(msg) { showToast(msg || 'שגיאה', 'error'); hideSpinner(); }
-function showSuccess(msg) { showToast(msg, 'success'); }
-
-// ===== CONFIRM =====
-function showConfirm(title, msg, okLabel, okClass, cb) {
-  document.getElementById('confirm-title').textContent = title;
-  document.getElementById('confirm-msg').textContent = msg;
-  var btn = document.getElementById('confirm-ok-btn');
-  btn.textContent = okLabel || 'אישור';
-  btn.className = 'btn ' + (okClass || 'btn-danger');
-  S.confirmCb = cb;
-  document.getElementById('confirm-overlay').classList.add('open');
-}
-function closeConfirm(result) {
-  document.getElementById('confirm-overlay').classList.remove('open');
-  if (result && S.confirmCb) S.confirmCb();
-  S.confirmCb = null;
-}
-
-// ===== FAB =====
-function fabAction() {
-  if (S.page === 'students') openStudentModal();
-  else if (S.page === 'calendar') openLessonModal();
-  else if (S.page === 'payments') openPaymentModal();
-  else if (S.page === 'archive') loadArchive();
-  else if (S.page === 'reports') loadReports();
-}
-
-// ===== GAS RUNNER =====
-function gasRun(fn, args, cb) {
-  showSpinner();
-  var runner = google.script.run
-    .withSuccessHandler(function(res) { hideSpinner(); cb(res); })
-    .withFailureHandler(function(err) { hideSpinner(); showError(err && err.message ? err.message : String(err)); });
-  if (args === undefined || args === null) runner[fn]();
-  else if (Array.isArray(args)) runner[fn].apply(runner, args);
-  else runner[fn](args);
-}
-
-// ===== DATE UTILS =====
-function pad2(n) { return n < 10 ? '0' + n : '' + n; }
-function toISO(d) { return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
-function fromISO(s) { if (!s) return new Date(); var p=s.split('-'); return new Date(+p[0],+p[1]-1,+p[2]); }
-function isoToIL(s) { if (!s) return ''; if (s.indexOf('/')>-1) return s; var p=s.split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s; }
-function ilToISO(s) { if (!s) return ''; if (s.indexOf('-')>-1) return s; var p=s.split('/'); return p.length===3?p[2]+'-'+p[1]+'-'+p[0]:s; }
-function todayISO() { return toISO(new Date()); }
-function hebrewDay(dow) { return ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'][dow]; }
-function hebrewMonth(m) { return ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'][m]; }
-function fmtPhone(p) { if (!p) return ''; var d=p.replace(/\D/g,''); return d.length===10?d.substr(0,3)+'-'+d.substr(3):p; }
-function initials(name) { if (!name) return '?'; var p=name.trim().split(' '); return p.length>=2?p[0][0]+p[p.length-1][0]:p[0][0]||'?'; }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
-// ===== LESSON STATUS =====
-function lsClass(st) {
-  if (st==='הושלם') return 'status-done';
-  if (st==='בוטל') return 'status-cancelled';
-  if (st==='לא הגיע') return 'status-absent';
-  return 'status-planned';
-}
-function lsColor(st) {
-  if (st==='הושלם') return '#16a34a';
-  if (st==='בוטל') return '#dc2626';
-  if (st==='לא הגיע') return '#ea580c';
-  return '#2563eb';
-}
-
-// ===== STUDENTS PAGE =====
-function loadStudents() {
-  gasRun('getStudents', [{status:''}], function(data) {
-    S.students = data || [];
-    renderStudents();
+function loadAll(){
+  Promise.all([
+    _call('getStudentsFullData'),
+    _call('getLessonsData'),
+    _call('getBalancesData'),
+    _call('getNotesData')
+  ]).then(([s,l,b,n])=>{
+    _students=s||[]; _lessons=l||[]; _notes=n||[];
+    _balances={};(b||[]).forEach(x=>_balances[x.internalId]=x);
+    _fillStudentSelects();
+    renderDashboard();
+    renderCalendar();
+    renderStudentsTable();
+    renderNotesPage();
+    checkPending();
   });
 }
 
-function renderStudents() {
-  var filter = (document.getElementById('students-filter')||{}).value || '';
-  var q = ((document.getElementById('students-search')||{}).value || '').trim().toLowerCase();
-  var list = S.students.filter(function(s) {
-    if (filter && s.status !== filter) return false;
-    if (q && (s.name||'').toLowerCase().indexOf(q)<0 && (s.phone||'').indexOf(q)<0 && (s.tz||'').indexOf(q)<0) return false;
-    return true;
-  });
-  document.getElementById('students-count').textContent = list.length;
-  if (!list.length) {
-    document.getElementById('students-list').innerHTML = '<div class="empty-state"><div class="empty-icon">👤</div><p>לא נמצאו תלמידים</p></div>';
-    return;
-  }
-  var html = list.map(function(s) {
-    var bc = s.status==='פעיל'?'badge-active':'badge-inactive';
-    var bal = S.balances[s.id];
-    var balHtml = bal!==undefined ? '<div class="student-balance '+(bal<0?'balance-owe':'balance-ok')+'">'+(bal<0?'חוב: ₪'+Math.abs(bal).toLocaleString():'זכות: ₪'+bal.toLocaleString())+'</div>' : '';
-    return '<div class="card"><div class="student-card">'
-      +'<div class="student-avatar">'+initials(s.name)+'</div>'
-      +'<div class="student-info" onclick="openStudentDetail(\''+s.id+'\')">'
-        +'<div class="student-name">'+esc(s.name)+'</div>'
-        +'<div class="student-meta">'+fmtPhone(s.phone)+(s.pricing?' · '+esc(s.pricing):'')+'</div>'
-        +'<span class="student-badge '+bc+'">'+esc(s.status||'פעיל')+'</span>'
-        +balHtml
-      +'</div>'
-      +'<div class="student-actions">'
-        +'<button class="icon-btn btn-edit" onclick="openStudentModal(\''+s.id+'\')" title="עריכה">✏️</button>'
-        +'<button class="icon-btn btn-archive" onclick="doArchiveStudent(\''+s.id+'\',\''+esc(s.name)+'\')" title="ארכיון">📦</button>'
-        +'<button class="icon-btn btn-delete" onclick="doDeleteStudent(\''+s.id+'\',\''+esc(s.name)+'\')" title="מחיקה">🗑️</button>'
-      +'</div>'
-    +'</div></div>';
-  }).join('');
-  document.getElementById('students-list').innerHTML = html;
+function _call(fn,...args){
+  return new Promise((res,rej)=>google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
 }
 
-function filterStudents() { renderStudents(); }
-
-// ===== STUDENT MODAL =====
-function openStudentModal(id) {
-  document.getElementById('student-id').value = id || '';
-  document.getElementById('student-modal-title').textContent = id ? 'עריכת תלמיד' : 'תלמיד חדש';
-  if (id) {
-    var s = S.students.find(function(x){ return x.id===id; });
-    if (s) fillStudentForm(s); else clearStudentForm();
-  } else {
-    clearStudentForm();
-  }
-  document.getElementById('student-modal-overlay').classList.add('open');
+// ════════════════════════════════════════
+// THEME
+// ════════════════════════════════════════
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent=isLight?'🌙':'☀️';
+  localStorage.setItem('dsp-theme',isLight?'light':'dark');
 }
-function closeStudentModal() { document.getElementById('student-modal-overlay').classList.remove('open'); }
-
-function clearStudentForm() {
-  ['s-name','s-tz','s-phone','s-phone2','s-email','s-address','s-notes'].forEach(function(id){ document.getElementById(id).value=''; });
-  ['s-tz-msg','s-phone-msg','s-email-msg','s-birth-msg'].forEach(function(id){setFieldMsg(id,'','');});
-  document.getElementById('s-birth').value='';
-  document.getElementById('s-start').value = todayISO();
-  document.getElementById('s-pricing').value='רגיל';
-  document.getElementById('s-price').value='160';
-  document.getElementById('s-status').value='פעיל';
-}
-
-function fillStudentForm(s) {
-  document.getElementById('s-name').value = s.name||'';
-  document.getElementById('s-tz').value = s.tz||'';
-  document.getElementById('s-phone').value = s.phone||'';
-  document.getElementById('s-phone2').value = s.phone2||'';
-  document.getElementById('s-email').value = s.email||'';
-  document.getElementById('s-birth').value = s.birthDate ? ilToISO(s.birthDate) : '';
-  document.getElementById('s-start').value = s.startDate ? ilToISO(s.startDate) : '';
-  document.getElementById('s-address').value = s.address||'';
-  document.getElementById('s-pricing').value = s.pricing||'רגיל';
-  var pr=s.priceRegular||160;
-  var sel=document.getElementById('s-price-select');
-  var inp=document.getElementById('s-price');
-  if([160,170,180,190].indexOf(pr)>=0){sel.value=String(pr);inp.style.display='none';}
-  else{sel.value='custom';inp.style.display='block';}
-  inp.value=pr;
-  document.getElementById('s-status').value = s.status||'פעיל';
-  document.getElementById('s-notes').value = s.notes||'';
-}
-
-function updatePricingField() {
-  var m = {'רגיל':160,'חבילה א':180,'חבילה ב':191,'פנימי':175,'מבחן בלבד':200};
-  document.getElementById('s-price').value = m[document.getElementById('s-pricing').value] || 160;
-}
-
-function onPriceSelect(val) {
-  var inp = document.getElementById('s-price');
-  if(val==='custom'){ inp.style.display='block'; inp.value=''; inp.focus(); }
-  else { inp.style.display='none'; inp.value=val; }
-}
-function isValidIsraeliID(id) {
-  var str = String(id||'').replace(/[^0-9]/g,'');
-  while(str.length < 9) str = '0' + str;
-  if(str.length !== 9) return false;
-  var sum=0, n;
-  for(var i=0; i<9; i++){
-    n = parseInt(str.charAt(i));
-    if(i%2===1){ n*=2; if(n>9) n-=9; }
-    sum+=n;
-  }
-  return sum%10===0;
-}
-
-function setFieldMsg(id, msg, color) {
-  var el=document.getElementById(id); if(el){el.textContent=msg;el.style.color=color;}
-}
-
-function validateTZField() {
-  var tz=document.getElementById('s-tz').value.replace(/[^0-9]/g,'');
-  var editId=document.getElementById('student-id').value;
-  if(!tz){setFieldMsg('s-tz-msg','','');return;}
-  if(tz.length<9){setFieldMsg('s-tz-msg','הזן 9 ספרות','#888');return;}
-  if(!isValidIsraeliID(tz)){setFieldMsg('s-tz-msg','⚠ ת.ז. לא חוקית','#dc3545');return;}
-  var dup=S.students.find(function(s){return s.tz===tz&&s.id!==editId;});
-  if(dup){setFieldMsg('s-tz-msg','⚠ ת.ז. כבר קיימת עבור: '+dup.name,'#dc3545');return;}
-  setFieldMsg('s-tz-msg','✓ ת.ז. תקינה','#28a745');
-}
-
-function validatePhoneField() {
-  var phone=document.getElementById('s-phone').value.trim();
-  if(!phone){setFieldMsg('s-phone-msg','','');return;}
-  var clean=phone.replace(/[-\s]/g,'');
-  if(!/^(05\d{8}|0[2-9]\d{7})$/.test(clean)){setFieldMsg('s-phone-msg','⚠ מספר לא חוקי','#dc3545');}
-  else{setFieldMsg('s-phone-msg','✓ תקין','#28a745');}
-}
-
-function validateEmailField() {
-  var v=document.getElementById('s-email').value.trim();
-  if(!v){setFieldMsg('s-email-msg','','');return;}
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){setFieldMsg('s-email-msg','⚠ כתובת אימייל לא חוקית','#dc3545');}
-  else{setFieldMsg('s-email-msg','✓ תקין','#28a745');}
-}
-function validateBirthField() {
-  var val=document.getElementById('s-birth').value;
-  if(!val){setFieldMsg('s-birth-msg','','');return;}
-  var birth=new Date(val), now=new Date();
-  var totalMonths=(now.getFullYear()-birth.getFullYear())*12+(now.getMonth()-birth.getMonth());
-  var yrs=Math.floor(totalMonths/12), months=totalMonths%12;
-  var ageStr='גיל: '+yrs+' שנים ו-'+months+' חודשים';
-  if(totalMonths<16*12+6){
-    setFieldMsg('s-birth-msg',ageStr+' — ⚠ גיל לא חוקי לתחילת לימוד נהיגה','#dc3545');
-  } else {
-    setFieldMsg('s-birth-msg',ageStr,'#28a745');
-  }
-}
-
-function saveStudent() {
-  var name = document.getElementById('s-name').value.trim();
-  var phone = document.getElementById('s-phone').value.trim();
-  var tz = document.getElementById('s-tz').value.trim();
-  var editId = document.getElementById('student-id').value;
-
-  if (!name) { showError('נא להזין שם תלמיד'); return; }
-
-  // Phone validation
-  if (!phone) { showError('נא להזין מספר טלפון'); return; }
-  var phoneClean = phone.replace(/[-\s]/g,'');
-  if (!/^(05\d{8}|0[2-9]\d{7})$/.test(phoneClean)) { showError('מספר טלפון לא חוקי'); return; }
-
-  // TZ validation
-  if (tz) {
-    if (!isValidIsraeliID(tz)) { showError('תעודת זהות לא חוקית'); return; }
-    var dup = S.students.find(function(s){ return s.tz===tz && s.id!==editId; });
-    if (dup) { showError('ת.ז. '+tz+' כבר קיימת עבור: '+dup.name); return; }
-  }
-
-  // Email validation
-  var email = document.getElementById('s-email').value.trim();
-  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showError('כתובת אימייל לא חוקית'); return; }
-
-  // Age validation
-  var birthVal = document.getElementById('s-birth').value;
-  if (birthVal) {
-    var birthDate = new Date(birthVal);
-    var now = new Date();
-    var ageMs = now - birthDate;
-    var ageMonths = ageMs / (1000*60*60*24*30.44);
-    if (ageMonths < 16*12+6) { showError('גיל לא חוקי לתחילת לימוד נהיגה (מתחת ל-16 שנה ו-6 חודשים)'); return; }
-  }
-  var nameParts = name.trim().split(/\s+/);
-  var obj = {
-    firstName: nameParts[0]||'',
-    lastName: nameParts.slice(1).join(' ')||'-',
-    idNumber: document.getElementById('s-tz').value.replace(/[^0-9]/g,''),
-    phone: phone,
-    phone2: document.getElementById('s-phone2').value.trim(),
-    email: document.getElementById('s-email').value.trim(),
-    birthDate: isoToIL(document.getElementById('s-birth').value),
-    startDate: isoToIL(document.getElementById('s-start').value),
-    address: document.getElementById('s-address').value.trim(),
-    pricingType: document.getElementById('s-pricing').value,
-    priceRegular: parseInt(document.getElementById('s-price').value)||160,
-    status: document.getElementById('s-status').value,
-    notes: document.getElementById('s-notes').value.trim()
-  };
-  var id = document.getElementById('student-id').value;
-  if (id) obj.id = id;
-  gasRun(id ? 'updateStudent' : 'createStudent', obj, function(res) {
-    if (res && res.success === false) { showError(res.error || 'שגיאה בשמירה'); return; }
-    showSuccess(id ? 'תלמיד עודכן בהצלחה' : 'תלמיד נוצר בהצלחה');
-    closeStudentModal();
-    loadStudents();
-  });
-}
-
-function doDeleteStudent(id, name) {
-  showConfirm('מחיקת תלמיד','האם למחוק את '+name+'? פעולה זו אינה הפיכה.','מחק','btn-danger',function(){
-    gasRun('deleteStudent',id,function(){ showSuccess('תלמיד נמחק'); loadStudents(); });
-  });
-}
-
-function doArchiveStudent(id, name) {
-  showConfirm('העברה לארכיון','להעביר את '+name+' לארכיון?','העבר','btn-accent',function(){
-    gasRun('archiveStudent',id,function(){ showSuccess('הועבר לארכיון'); loadStudents(); });
-  });
-}
-
-// ===== STUDENT DETAIL =====
-function openStudentDetail(id) {
-  var s = S.students.find(function(x){ return x.id===id; });
-  if (!s) return;
-  document.getElementById('sd-title').textContent = s.name;
-  document.getElementById('student-detail-overlay').setAttribute('data-sid', id);
-  var h = '<div class="modal-tabs">'
-    +'<button class="modal-tab active" onclick="sdTab(this,\'info\',\''+id+'\')">פרטים</button>'
-    +'<button class="modal-tab" onclick="sdTab(this,\'lessons\',\''+id+'\')">שיעורים</button>'
-    +'<button class="modal-tab" onclick="sdTab(this,\'payments\',\''+id+'\')">תשלומים</button>'
-    +'</div>'
-    +'<div id="sd-info">'
-    +infoRow('שם',s.name)+infoRow('ת.ז.',s.tz||'—')+infoRow('טלפון',fmtPhone(s.phone));
-  if (s.phone2) h += infoRow('טלפון 2',fmtPhone(s.phone2));
-  h += infoRow('כתובת',s.address||'—')+infoRow('תאריך לידה',s.birthDate||'—')
-    +infoRow('תחילת לימודים',s.startDate||'—')+infoRow('תמחור',s.pricing||'רגיל')
-    +infoRow('מחיר/שיעור','₪'+(s.priceRegular||160))+infoRow('סטטוס',s.status||'פעיל');
-  if (s.notes) h += infoRow('הערות',s.notes);
-  var bal = S.balances[id];
-  if (bal!==undefined) h += infoRow('יתרה','<span style="color:'+(bal<0?'var(--danger)':'var(--success)')+'">₪'+Math.abs(bal).toLocaleString()+(bal<0?' (חוב)':' (זכות)')+'</span>');
-  h += '<div class="form-actions" style="margin-top:14px">'
-    +'<button class="btn btn-primary" onclick="openStudentModal(\''+id+'\');closeStudentDetail()">✏️ עריכה</button>'
-    +'<button class="btn btn-success" onclick="sendWelcomeWA(\''+id+'\')">📱 WhatsApp</button>'
-    +'</div></div>'
-    +'<div id="sd-lessons" style="display:none"></div>'
-    +'<div id="sd-payments" style="display:none"></div>';
-  document.getElementById('sd-body').innerHTML = h;
-  document.getElementById('student-detail-overlay').classList.add('open');
-}
-function closeStudentDetail() { document.getElementById('student-detail-overlay').classList.remove('open'); }
-
-function sdTab(btn, tab, sid) {
-  document.querySelectorAll('#sd-body .modal-tab').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  document.getElementById('sd-info').style.display = tab==='info'?'':'none';
-  document.getElementById('sd-lessons').style.display = tab==='lessons'?'':'none';
-  document.getElementById('sd-payments').style.display = tab==='payments'?'':'none';
-  if (tab==='lessons' && document.getElementById('sd-lessons').innerHTML==='') {
-    document.getElementById('sd-lessons').innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><p>טוען...</p></div>';
-    gasRun('getLessonsByStudent', sid, function(data) {
-      if (!data||!data.length) { document.getElementById('sd-lessons').innerHTML='<div class="empty-state"><div class="empty-icon">📅</div><p>אין שיעורים</p></div>'; return; }
-      document.getElementById('sd-lessons').innerHTML = data.map(function(l){
-        return '<div class="card"><div class="lesson-card">'
-          +'<div class="lesson-status-dot" style="background:'+lsColor(l.status)+'"></div>'
-          +'<div class="lesson-info"><div class="lesson-main">'+esc(l.date||'')+' '+esc(l.time||'')+'</div>'
-          +'<div class="lesson-sub">'+esc(l.type||'רגיל')+' · '+esc(l.status||'')+' · ₪'+Number(l.price||0).toLocaleString()+'</div></div>'
-          +'<div class="lesson-actions">'
-          +'<button class="icon-btn btn-edit" onclick="openLessonModal(\''+l.id+'\')">✏️</button>'
-          +'<button class="icon-btn btn-delete" onclick="doDeleteLesson(\''+l.id+'\')">🗑️</button>'
-          +'</div>'
-          +'</div></div>';
-      }).join('');
-    });
-  }
-  if (tab==='payments' && document.getElementById('sd-payments').innerHTML==='') {
-    document.getElementById('sd-payments').innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><p>טוען...</p></div>';
-    gasRun('getPaymentsByStudent', sid, function(data) {
-      if (!data||!data.length) { document.getElementById('sd-payments').innerHTML='<div class="empty-state"><div class="empty-icon">💳</div><p>אין תשלומים</p></div>'; return; }
-      document.getElementById('sd-payments').innerHTML = data.map(function(p){
-        return '<div class="card"><div class="payment-card">'
-          +'<div class="payment-row"><span class="payment-amount">₪'+Number(p.amount||0).toLocaleString()+'</span><span class="payment-method">'+esc(p.method||'')+'</span></div>'
-          +'<div class="payment-meta">'+esc(p.date||'')+(p.receiptNumber?' · קבלה #'+p.receiptNumber:'')+'</div>'
-          +'</div></div>';
-      }).join('');
-    });
-  }
-}
-
-function infoRow(k,v) { return '<div class="info-row"><span class="info-key">'+esc(k)+'</span><span class="info-val">'+v+'</span></div>'; }
-
-function sendWelcomeWA(sid) {
-  gasRun('sendWelcomeMessage', sid, function(){ showSuccess('הודעת WhatsApp נשלחה'); });
-}
-
-// ===== STUDENT SELECT HELPER =====
-function fillStudentSelect(selId) {
-  var sel = document.getElementById(selId);
-  var cur = sel ? sel.value : '';
-  var opts = '<option value="">-- בחר תלמיד --</option>';
-  S.students.forEach(function(s){ opts += '<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>'; });
-  if (sel) { sel.innerHTML = opts; sel.value = cur; }
-}
-
-// ===== CALENDAR =====
-function setCalView(v, btn) {
-  S.calView = v;
-  document.querySelectorAll('.cal-view-tab').forEach(function(b){ b.classList.remove('active'); });
-  if (btn) btn.classList.add('active');
-  loadCalendar();
-}
-
-function calPrev() {
-  if (S.calView==='day') S.calDate.setDate(S.calDate.getDate()-1);
-  else if (S.calView==='week') S.calDate.setDate(S.calDate.getDate()-7);
-  else S.calDate.setMonth(S.calDate.getMonth()-1);
-  loadCalendar();
-}
-function calNext() {
-  if (S.calView==='day') S.calDate.setDate(S.calDate.getDate()+1);
-  else if (S.calView==='week') S.calDate.setDate(S.calDate.getDate()+7);
-  else S.calDate.setMonth(S.calDate.getMonth()+1);
-  loadCalendar();
-}
-
-function loadCalendar() {
-  if (S.calView==='day') {
-    var d = S.calDate;
-    document.getElementById('cal-title').textContent = pad2(d.getDate())+'/'+pad2(d.getMonth()+1)+'/'+d.getFullYear()+' ('+hebrewDay(d.getDay())+')';
-    gasRun('getLessonsByDate', toISO(d), function(data){ renderDayView(data||[]); });
-  } else if (S.calView==='week') {
-    var ws = weekStart(S.calDate), we = new Date(ws); we.setDate(ws.getDate()+6);
-    document.getElementById('cal-title').textContent = pad2(ws.getDate())+'/'+pad2(ws.getMonth()+1)+' – '+pad2(we.getDate())+'/'+pad2(we.getMonth()+1)+'/'+we.getFullYear();
-    gasRun('getLessonsByWeek', toISO(ws), function(data){ renderWeekView(data||[], ws); });
-  } else {
-    var y=S.calDate.getFullYear(), m=S.calDate.getMonth();
-    document.getElementById('cal-title').textContent = hebrewMonth(m)+' '+y;
-    gasRun('getLessonsByMonth', [y, m+1], function(data){ renderMonthView(data||[], y, m); });
-  }
-}
-
-function weekStart(d) {
-  var c = new Date(d); c.setDate(d.getDate()-d.getDay()); return c;
-}
-
-function renderDayView(lessons) {
-  var byH = {};
-  lessons.forEach(function(l){ var h=l.time?+l.time.split(':')[0]:0; (byH[h]||(byH[h]=[])).push(l); });
-  var html = '<div class="day-slots">';
-  for (var h=7; h<=21; h++) {
-    var ls = byH[h]||[];
-    html += '<div class="day-slot"><div class="slot-time">'+pad2(h)+':00</div><div class="slot-content">';
-    ls.forEach(function(l){
-      html += '<div class="lesson-chip '+lsClass(l.status)+'" onclick="openLessonModal(\''+l.id+'\')">'
-        +'<span>'+esc(l.time||'')+' '+esc(l.studentName||'')+'</span>'
-        +'<span style="font-size:10px;opacity:0.8">'+esc(l.type||'')+'</span>'
-        +'</div>';
-    });
-    html += '</div></div>';
-  }
-  html += '</div>';
-  document.getElementById('cal-content').innerHTML = html;
-}
-
-function renderWeekView(lessons, ws) {
-  var days = [];
-  for (var i=0;i<7;i++){ var d=new Date(ws); d.setDate(ws.getDate()+i); days.push(d); }
-  var dnShort = ['א','ב','ג','ד','ה','ו','ש'];
-  var idx = {};
-  lessons.forEach(function(l){
-    var dt = l.date||''; if (dt.indexOf('/')>-1){var p=dt.split('/');dt=p[2]+'-'+p[1]+'-'+p[0];}
-    var h = l.time ? +l.time.split(':')[0] : 0;
-    var key = dt+'_'+h; (idx[key]||(idx[key]=[])).push(l);
-  });
-  var html = '<div class="week-wrap"><div class="week-grid">';
-  html += '<div class="week-header">שעה</div>';
-  days.forEach(function(d,i){
-    var isT = toISO(d)===todayISO();
-    html += '<div class="week-header" style="'+(isT?'background:var(--accent);color:var(--primary)':'')+'">'+dnShort[i]+'<br>'+d.getDate()+'</div>';
-  });
-  for (var h=7;h<=20;h++){
-    html += '<div class="week-time-col">'+pad2(h)+'</div>';
-    days.forEach(function(d){
-      var ls = idx[toISO(d)+'_'+h]||[];
-      html += '<div class="week-cell">';
-      ls.forEach(function(l){
-        html += '<div class="week-lesson '+lsClass(l.status)+'" onclick="openLessonModal(\''+l.id+'\')" title="'+esc(l.studentName||'')+'">'+esc(l.studentName||'')+'</div>';
-      });
-      html += '</div>';
-    });
-  }
-  html += '</div></div>';
-  document.getElementById('cal-content').innerHTML = html;
-}
-
-function renderMonthView(lessons, year, month) {
-  var first = new Date(year,month,1), last = new Date(year,month+1,0);
-  var idx = {};
-  lessons.forEach(function(l){
-    var dt = l.date||''; if (dt.indexOf('/')>-1){var p=dt.split('/');dt=p[2]+'-'+p[1]+'-'+p[0];}
-    (idx[dt]||(idx[dt]=[])).push(l);
-  });
-  var dh = ['א','ב','ג','ד','ה','ו','ש'];
-  var html = '<div class="month-grid">';
-  dh.forEach(function(d){ html += '<div class="month-day-header">'+d+'</div>'; });
-  for (var b=0;b<first.getDay();b++) html += '<div class="month-day other-month"></div>';
-  for (var day=1;day<=last.getDate();day++){
-    var iso = year+'-'+pad2(month+1)+'-'+pad2(day);
-    var ls = idx[iso]||[];
-    var isT = iso===todayISO();
-    html += '<div class="month-day'+(isT?' today':'')+'" onclick="calDayClick(\''+iso+'\')"><div class="month-day-num">'+day+'</div>';
-    ls.slice(0,4).forEach(function(l){ html += '<span class="month-dot" style="background:'+lsColor(l.status)+'"></span>'; });
-    if (ls.length>4) html += '<span style="font-size:9px;color:var(--text3)">+'+( ls.length-4)+'</span>';
-    html += '</div>';
-  }
-  html += '</div>';
-  document.getElementById('cal-content').innerHTML = html;
-}
-
-function calDayClick(iso) { S.calDate = fromISO(iso); S.calView='day'; document.querySelectorAll('.cal-view-tab')[0].click(); }
-
-// ===== LESSON MODAL =====
-function openLessonModal(id) {
-  fillStudentSelect('l-student');
-  document.getElementById('lesson-id').value = id || '';
-  document.getElementById('lesson-modal-title').textContent = id ? 'עריכת שיעור' : 'שיעור חדש';
-  if (id) {
-    gasRun('getLessons', null, function(data) {
-      S.currentLessonData = data || [];
-      var l = S.currentLessonData.find(function(x){ return x.id===id; });
-      if (l) {
-        document.getElementById('l-student').value = l.studentId||'';
-        document.getElementById('l-date').value = l.date ? ilToISO(l.date) : '';
-        document.getElementById('l-time').value = l.time||'';
-        document.getElementById('l-duration').value = l.duration||60;
-        document.getElementById('l-type').value = l.type||'רגיל';
-        document.getElementById('l-price').value = l.price||'';
-        document.getElementById('l-status').value = l.status||'מתוכנן';
-        document.getElementById('l-notes').value = l.notes||'';
-      }
-    });
-  } else {
-    document.getElementById('l-student').value='';
-    document.getElementById('l-date').value = toISO(S.calDate) || todayISO();
-    document.getElementById('l-time').value='';
-    document.getElementById('l-duration').value='60';
-    document.getElementById('l-type').value='רגיל';
-    document.getElementById('l-price').value='160';
-    document.getElementById('l-status').value='מתוכנן';
-    document.getElementById('l-notes').value='';
-  }
-  document.getElementById('lesson-modal-overlay').classList.add('open');
-}
-function closeLessonModal() { document.getElementById('lesson-modal-overlay').classList.remove('open'); }
-
-function saveLesson() {
-  var sid = document.getElementById('l-student').value;
-  var date = document.getElementById('l-date').value;
-  var time = document.getElementById('l-time').value;
-  if (!sid) { showError('נא לבחור תלמיד'); return; }
-  if (!date) { showError('נא לבחור תאריך'); return; }
-  if (!time) { showError('נא לבחור שעה'); return; }
-  var st = S.students.find(function(x){ return x.id===sid; });
-  var obj = {
-    studentId:sid, studentName: st?st.name:'',
-    date: isoToIL(date), time: time,
-    duration: parseInt(document.getElementById('l-duration').value)||60,
-    type: document.getElementById('l-type').value,
-    price: parseInt(document.getElementById('l-price').value)||160,
-    status: document.getElementById('l-status').value,
-    notes: document.getElementById('l-notes').value.trim()
-  };
-  var id = document.getElementById('lesson-id').value;
-  gasRun(id?'updateLesson':'createLesson', id?[id,obj]:obj, function(){
-    showSuccess(id?'שיעור עודכן':'שיעור נוצר');
-    closeLessonModal();
-    loadCalendar();
-  });
-}
-
-function doDeleteLesson(id) {
-  showConfirm('מחיקת שיעור','האם למחוק שיעור זה?','מחק','btn-danger',function(){
-    gasRun('deleteLesson',id,function(){ showSuccess('שיעור נמחק'); loadCalendar(); closeStudentDetail(); });
-  });
-}
-
-// ===== PAYMENTS PAGE =====
-function loadPayments() {
-  gasRun('getPayments', null, function(data){
-    S.payments = data || [];
-    renderPayments();
-  });
-}
-
-function renderPayments() {
-  var method = (document.getElementById('payments-method-filter')||{}).value||'';
-  var q = ((document.getElementById('payments-search')||{}).value||'').trim().toLowerCase();
-  var list = S.payments.filter(function(p){
-    if (method && p.method!==method) return false;
-    if (q && (p.studentName||'').toLowerCase().indexOf(q)<0 && (p.notes||'').toLowerCase().indexOf(q)<0) return false;
-    return true;
-  });
-  document.getElementById('payments-count').textContent = list.length;
-  var total = list.reduce(function(a,b){ return a+Number(b.amount||0); },0);
-  var html = '';
-  if (total>0) html += '<div class="card" style="padding:12px 15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">'
-    +'<span style="font-size:13px;color:var(--text2);font-weight:600">סה"כ:</span>'
-    +'<span style="font-size:18px;font-weight:700;color:var(--success)">₪'+total.toLocaleString()+'</span></div>';
-  if (!list.length) { html += '<div class="empty-state"><div class="empty-icon">💳</div><p>אין תשלומים</p></div>'; }
-  else {
-    list.forEach(function(p){
-      html += '<div class="card"><div class="payment-card">'
-        +'<div class="payment-row"><span class="payment-amount">₪'+Number(p.amount||0).toLocaleString()+'</span><span class="payment-method">'+esc(p.method||'')+'</span></div>'
-        +'<div class="payment-meta">'+esc(p.studentName||'')+' · '+esc(p.date||'')+(p.receiptNumber?' · קבלה #'+esc(p.receiptNumber):'')+'</div>'
-        +(p.notes?'<div class="payment-meta" style="margin-top:2px">'+esc(p.notes)+'</div>':'')
-        +'<div style="display:flex;gap:5px;margin-top:7px">'
-        +'<button class="icon-btn btn-edit" onclick="openPaymentModal(\''+p.id+'\')">✏️</button>'
-        +'<button class="icon-btn btn-delete" onclick="doDeletePayment(\''+p.id+'\')">🗑️</button>'
-        +'</div>'
-        +'</div></div>';
-    });
-  }
-  document.getElementById('payments-list').innerHTML = html;
-}
-
-function filterPayments() { renderPayments(); }
-
-// ===== PAYMENT MODAL =====
-function openPaymentModal(id) {
-  fillStudentSelect('p-student');
-  document.getElementById('payment-id').value = id||'';
-  document.getElementById('payment-modal-title').textContent = id?'עריכת תשלום':'תשלום חדש';
-  if (id) {
-    var p = S.payments.find(function(x){ return x.id===id; });
-    if (p) {
-      document.getElementById('p-student').value = p.studentId||'';
-      document.getElementById('p-amount').value = p.amount||'';
-      document.getElementById('p-date').value = p.date?ilToISO(p.date):'';
-      document.getElementById('p-method').value = p.method||'מזומן';
-      document.getElementById('p-receipt').value = p.receiptNumber||'';
-      document.getElementById('p-notes').value = p.notes||'';
-    }
-  } else {
-    document.getElementById('p-student').value='';
-    document.getElementById('p-amount').value='';
-    document.getElementById('p-date').value = todayISO();
-    document.getElementById('p-method').value='מזומן';
-    document.getElementById('p-receipt').value='';
-    document.getElementById('p-notes').value='';
-  }
-  document.getElementById('payment-modal-overlay').classList.add('open');
-}
-function closePaymentModal() { document.getElementById('payment-modal-overlay').classList.remove('open'); }
-
-function savePayment() {
-  var sid = document.getElementById('p-student').value;
-  var amount = document.getElementById('p-amount').value;
-  var date = document.getElementById('p-date').value;
-  if (!sid) { showError('נא לבחור תלמיד'); return; }
-  if (!amount||isNaN(+amount)||+amount<=0) { showError('נא להזין סכום תקין'); return; }
-  if (!date) { showError('נא לבחור תאריך'); return; }
-  var st = S.students.find(function(x){ return x.id===sid; });
-  var obj = {
-    studentId:sid, studentName:st?st.name:'',
-    amount:+amount, date:isoToIL(date),
-    method: document.getElementById('p-method').value,
-    receiptNumber: document.getElementById('p-receipt').value.trim(),
-    notes: document.getElementById('p-notes').value.trim()
-  };
-  var id = document.getElementById('payment-id').value;
-  gasRun(id?'updatePayment':'createPayment', id?[id,obj]:obj, function(){
-    showSuccess(id?'תשלום עודכן':'תשלום נרשם');
-    closePaymentModal();
-    loadPayments();
-  });
-}
-
-function doDeletePayment(id) {
-  showConfirm('מחיקת תשלום','האם למחוק תשלום זה?','מחק','btn-danger',function(){
-    gasRun('deletePayment',id,function(){ showSuccess('תשלום נמחק'); loadPayments(); });
-  });
-}
-
-// ===== REPORTS =====
-function setReportTab(tab, btn) {
-  S.reportTab = tab;
-  document.querySelectorAll('#report-tabs .pill-tab').forEach(function(b){ b.classList.remove('active'); });
-  if (btn) btn.classList.add('active');
-  loadReports();
-}
-
-function loadReports() {
-  if (S.reportTab==='monthly') loadMonthlyReport();
-  else if (S.reportTab==='yearly') loadYearlyReport();
-  else if (S.reportTab==='debtors') loadDebtorsReport();
-  else loadCancellationsReport();
-}
-
-function destroyChart(id) { if (S.charts[id]) { S.charts[id].destroy(); delete S.charts[id]; } }
-
-function statCard(label, value) {
-  return '<div class="stat-card"><div class="stat-value">'+esc(String(value))+'</div><div class="stat-label">'+esc(label)+'</div></div>';
-}
-
-function loadMonthlyReport() {
-  var now = new Date(), y=now.getFullYear(), m=now.getMonth()+1;
-  gasRun('getMonthlyReport', [y,m], function(data){
-    data=data||{};
-    var html='<div class="stat-grid">'
-      +statCard('שיעורים',data.totalLessons||0)
-      +statCard('הכנסות','₪'+Number(data.totalRevenue||0).toLocaleString())
-      +statCard('תשלומים','₪'+Number(data.totalPayments||0).toLocaleString())
-      +statCard('תלמידים פעילים',data.activeStudents||0)
-      +'</div>'
-      +'<div class="card report-card"><div style="font-weight:700;margin-bottom:10px">שיעורים לפי סטטוס – '+hebrewMonth(m-1)+' '+y+'</div>'
-      +'<div class="chart-wrap"><canvas id="ch-monthly"></canvas></div></div>';
-    document.getElementById('reports-content').innerHTML = html;
-    destroyChart('ch-monthly');
-    var ctx = document.getElementById('ch-monthly');
-    if (ctx) {
-      S.charts['ch-monthly'] = new Chart(ctx, {
-        type:'bar',
-        data:{ labels:['מתוכנן','הושלם','בוטל','לא הגיע'], datasets:[{ label:'שיעורים', data:[data.planned||0,data.done||0,data.cancelled||0,data.absent||0], backgroundColor:['#3b82f6','#22c55e','#ef4444','#f97316'], borderRadius:8 }] },
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} }
-      });
-    }
-  });
-}
-
-function loadYearlyReport() {
-  var y=new Date().getFullYear();
-  gasRun('getYearlyOverview', y, function(data){
-    data=data||{};
-    var months=data.months||[];
-    var mNames=['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];
-    var revData=mNames.map(function(_,i){ var mo=months.find(function(x){return x.month===(i+1);}); return mo?(mo.revenue||0):0; });
-    var lesData=mNames.map(function(_,i){ var mo=months.find(function(x){return x.month===(i+1);}); return mo?(mo.lessons||0):0; });
-    var html='<div class="stat-grid">'
-      +statCard('סה"כ שיעורים',data.totalLessons||0)
-      +statCard('סה"כ הכנסות','₪'+Number(data.totalRevenue||0).toLocaleString())
-      +statCard('תלמידים חדשים',data.newStudents||0)
-      +statCard('ממוצע חודשי','₪'+Math.round(Number(data.totalRevenue||0)/12).toLocaleString())
-      +'</div>'
-      +'<div class="card report-card"><div style="font-weight:700;margin-bottom:10px">סקירה שנתית '+y+'</div>'
-      +'<div class="chart-wrap"><canvas id="ch-yearly"></canvas></div></div>';
-    document.getElementById('reports-content').innerHTML = html;
-    destroyChart('ch-yearly');
-    var ctx=document.getElementById('ch-yearly');
-    if (ctx) {
-      S.charts['ch-yearly']=new Chart(ctx,{
-        type:'line',
-        data:{ labels:mNames, datasets:[
-          {label:'הכנסות (₪)',data:revData,borderColor:'#e8a020',backgroundColor:'rgba(232,160,32,0.12)',tension:0.4,fill:true,yAxisID:'y'},
-          {label:'שיעורים',data:lesData,borderColor:'#1e3a5f',backgroundColor:'rgba(30,58,95,0.08)',tension:0.4,fill:false,yAxisID:'y1'}
-        ]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}},
-          scales:{ y:{beginAtZero:true,position:'right'}, y1:{beginAtZero:true,position:'left',grid:{drawOnChartArea:false}} } }
-      });
-    }
-  });
-}
-
-function loadDebtorsReport() {
-  gasRun('getDebtors', null, function(data){
-    data=(data||[]).sort(function(a,b){ return (a.balance||0)-(b.balance||0); });
-    var html='<div class="card report-card"><div style="font-weight:700;margin-bottom:12px">חייבים – '+data.length+' תלמידים</div>';
-    if (!data.length) html+='<div class="empty-state"><div class="empty-icon">✅</div><p>אין חייבים!</p></div>';
-    else data.forEach(function(d){
-      html+='<div class="debtor-row">'
-        +'<div><div class="debtor-name">'+esc(d.studentName||d.name||'')+'</div>'
-        +'<div class="debtor-phone">'+fmtPhone(d.phone||'')+'</div></div>'
-        +'<div class="debtor-amount">₪'+Math.abs(d.balance||0).toLocaleString()+'</div>'
-        +'</div>';
-    });
-    html+='</div>';
-    document.getElementById('reports-content').innerHTML = html;
-  });
-}
-
-function loadCancellationsReport() {
-  gasRun('getCancellationsReport', null, function(data){
-    data=data||{};
-    var html='<div class="stat-grid">'
-      +statCard('ביטולים',data.totalCancellations||0)
-      +statCard('לא הגיעו',data.totalAbsent||0)
-      +statCard('% ביטול',(data.cancellationRate||0)+'%')
-      +statCard('הפסד הכנסה','₪'+Number(data.lostRevenue||0).toLocaleString())
-      +'</div>'
-      +'<div class="card report-card"><div style="font-weight:700;margin-bottom:10px">ביטולים לפי חודש</div>'
-      +'<div class="chart-wrap"><canvas id="ch-canc"></canvas></div></div>';
-    document.getElementById('reports-content').innerHTML = html;
-    if (data.byMonth && data.byMonth.length) {
-      destroyChart('ch-canc');
-      var ctx=document.getElementById('ch-canc');
-      if (ctx) S.charts['ch-canc']=new Chart(ctx,{
-        type:'bar',
-        data:{ labels:data.byMonth.map(function(x){return x.label||'';}), datasets:[{label:'ביטולים',data:data.byMonth.map(function(x){return x.count||0;}),backgroundColor:'#ef4444',borderRadius:6}] },
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
-      });
-    }
-  });
-}
-
-// ===== ARCHIVE =====
-function loadArchive() {
-  gasRun('getArchivedStudents', null, function(data){
-    data=data||[];
-    document.getElementById('archive-count').textContent = data.length;
-    if (!data.length) { document.getElementById('archive-list').innerHTML='<div class="empty-state"><div class="empty-icon">🗄️</div><p>הארכיון ריק</p></div>'; return; }
-    document.getElementById('archive-list').innerHTML = data.map(function(s){
-      return '<div class="card"><div class="archive-card">'
-        +'<div class="archive-avatar">'+initials(s.name)+'</div>'
-        +'<div class="archive-info"><div class="archive-name">'+esc(s.name)+'</div>'
-        +'<div class="archive-meta">'+fmtPhone(s.phone||'')+(s.startDate?' · '+esc(s.startDate):'')+'</div></div>'
-        +'<button class="icon-btn btn-restore" onclick="doRestoreStudent(\''+s.id+'\',\''+esc(s.name)+'\')" title="שחזר">↩️</button>'
-        +'</div></div>';
-    }).join('');
-  });
-}
-
-function doRestoreStudent(id, name) {
-  showConfirm('שחזור תלמיד','לשחזר את '+name+' מהארכיון?','שחזר','btn-success',function(){
-    gasRun('restoreFromArchive',id,function(){ showSuccess('תלמיד שוחזר'); loadArchive(); });
-  });
-}
-
-// ===== IMPORT =====
-function setImportTab(tab, btn) {
-  S.importTab = tab;
-  document.querySelectorAll('#import-tabs .pill-tab').forEach(function(b){ b.classList.remove('active'); });
-  if (btn) btn.classList.add('active');
-  var fnMap = {students:'importStudentsCSV', lessons:'importLessonsCSV', payments:'importPaymentsCSV'};
-  S.importFn = fnMap[tab];
-  S.importCsv = '';
-  buildImportUI();
-}
-
-function buildImportUI() {
-  var labels = {students:'תלמידים',lessons:'שיעורים',payments:'תשלומים'};
-  var examples = {
-    students:'שם,ת.ז.,טלפון,טלפון2,תאריך לידה,כתובת,תמחור,מחיר,סטטוס,הערות\nישראל ישראלי,123456789,0501234567,,01/01/1990,תל אביב,רגיל,160,פעיל,',
-    lessons:'מזהה תלמיד,שם תלמיד,תאריך,שעה,משך,סוג,סטטוס,מחיר,הערות\nSTU001,ישראל,01/06/2024,10:00,60,רגיל,הושלם,160,',
-    payments:'מזהה תלמיד,שם תלמיד,תאריך,סכום,אמצעי,מספר קבלה,הערות\nSTU001,ישראל,01/06/2024,500,מזומן,123,'
-  };
-  var tab = S.importTab;
-  var h = '<div class="card" style="padding:16px">'
-    +'<div style="font-weight:700;margin-bottom:12px;font-size:15px">יבוא '+labels[tab]+' מ-CSV</div>'
-    +'<div class="import-zone" id="import-zone" onclick="document.getElementById(\'imp-file\').click()"'
-      +' ondragover="event.preventDefault();this.classList.add(\'dragover\')"'
-      +' ondragleave="this.classList.remove(\'dragover\')"'
-      +' ondrop="handleImportDrop(event)">'
-    +'<div class="import-icon">📤</div>'
-    +'<div class="import-label">לחץ לבחירת קובץ CSV או גרור לכאן</div>'
-    +'</div>'
-    +'<input type="file" id="imp-file" accept=".csv,.txt" style="display:none" onchange="handleImportFile(event)">'
-    +'<div id="import-result"></div>'
-    +'<div style="margin-top:14px"><div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:5px">פורמט לדוגמה:</div>'
-    +'<textarea class="form-control" rows="3" style="font-size:11px;direction:ltr" readonly>'+esc(examples[tab])+'</textarea></div>'
-    +'<div class="form-actions" style="margin-top:12px"><button class="btn btn-primary" onclick="runImport()">יבא נתונים</button></div>'
-    +'</div>';
-  document.getElementById('import-content').innerHTML = h;
-}
-
-function handleImportFile(e) {
-  var file = e.target.files[0]; if (!file) return;
-  var r = new FileReader();
-  r.onload = function(ev){ S.importCsv = ev.target.result; document.getElementById('import-result').innerHTML = '<div class="import-result ok">קובץ נטען: '+esc(file.name)+'</div>'; };
-  r.readAsText(file,'UTF-8');
-}
-function handleImportDrop(e) {
-  e.preventDefault(); document.getElementById('import-zone').classList.remove('dragover');
-  var file = e.dataTransfer.files[0]; if (!file) return;
-  var r = new FileReader();
-  r.onload = function(ev){ S.importCsv = ev.target.result; document.getElementById('import-result').innerHTML = '<div class="import-result ok">קובץ נטען: '+esc(file.name)+'</div>'; };
-  r.readAsText(file,'UTF-8');
-}
-function runImport() {
-  if (!S.importCsv) { showError('נא לבחור קובץ CSV'); return; }
-  gasRun(S.importFn, S.importCsv, function(res){
-    res=res||{};
-    var msg = 'יובאו '+(res.imported||0)+' רשומות'+(res.errors&&res.errors.length?', '+res.errors.length+' שגיאות':'');
-    document.getElementById('import-result').innerHTML = '<div class="import-result '+(res.errors&&res.errors.length?'err':'ok')+'">'+esc(msg)+'</div>';
-    showSuccess('יבוא הסתיים');
-    S.importCsv='';
-  });
-}
-
-// ===== SETTINGS =====
-function loadSettings() {
-  gasRun('getAllConfig', null, function(cfg){ buildSettingsUI(cfg||{}); });
-}
-
-function buildSettingsUI(cfg) {
-  var h = '';
-  h += settingsGroup('בית הספר', [
-    settingField('שם בית הספר','school_name',cfg.school_name||'ברוך Next Generation','text'),
-    settingField('שם המדריך','instructor_name',cfg.instructor_name||'תור ברוך','text')
-  ]);
-  h += settingsGroup('תמחור', [
-    settingField('מחיר רגיל (₪)','price_regular',cfg.price_regular||'160','number'),
-    settingField('מחיר חבילה א (₪)','price_pkg_a',cfg.price_pkg_a||'180','number'),
-    settingField('מחיר חבילה ב (₪)','price_pkg_b',cfg.price_pkg_b||'191','number'),
-    settingField('מחיר פנימי (₪)','price_internal',cfg.price_internal||'175','number'),
-    settingField('מחיר מבחן בלבד (₪)','price_exam',cfg.price_exam||'200','number')
-  ]);
-  h += settingsGroup('WhatsApp', [
-    settingField('מספר שולח','wa_phone',cfg.wa_phone||'','tel'),
-    settingField('הודעת ברוכים הבאים','wa_welcome',cfg.wa_welcome||'ברוכים הבאים לבית הספר לנהיגה ברוך Next Generation! 🚗','textarea'),
-    settingField('תבנית תזכורת','wa_reminder',cfg.wa_reminder||'תזכורת: יש לך שיעור נהיגה מחר בשעה {time}','textarea')
-  ]);
-  h += '<div class="settings-group"><div class="settings-group-title">מראה</div>';
-  h += '<div class="settings-item"><span class="settings-label">מצב לילה</span>';
-  h += '<label class="toggle"><input type="checkbox" '+(S.theme==='dark'?'checked':'')+' onchange="toggleTheme()"><span class="toggle-slider"></span></label></div></div>';
-  h += '<div class="settings-group"><div class="settings-group-title">פעולות מערכת</div>';
-  h += '<div class="settings-item" onclick="recalcBalances()"><span class="settings-label">חשב מחדש יתרות לכל התלמידים</span><span>🔄</span></div>';
-  h += '<div class="settings-item" onclick="checkWAStatus()"><span class="settings-label">בדוק חיבור WhatsApp</span><span>📱</span></div>';
-  h += '</div>';
-  document.getElementById('settings-content').innerHTML = h;
-}
-
-function settingsGroup(title, items) {
-  return '<div class="settings-group"><div class="settings-group-title">'+esc(title)+'</div>'+items.join('')+'</div>';
-}
-function settingField(label, key, value, type) {
-  var inp = type==='textarea'
-    ? '<textarea class="form-control" id="cfg-'+key+'" rows="2" onblur="saveCfg(\''+key+'\',this.value)">'+esc(String(value))+'</textarea>'
-    : '<input class="form-control" id="cfg-'+key+'" type="'+type+'" value="'+esc(String(value))+'" onblur="saveCfg(\''+key+'\',this.value)">';
-  return '<div class="card" style="margin-bottom:8px;padding:12px 14px"><label class="form-label" style="margin-bottom:5px">'+esc(label)+'</label>'+inp+'</div>';
-}
-function saveCfg(key, val) {
-  gasRun('setConfig',[key,val],function(){ showToast('הגדרה נשמרה','success'); });
-}
-function recalcBalances() {
-  gasRun('recalculateAllBalances',null,function(){ showSuccess('יתרות חושבו מחדש'); });
-}
-function checkWAStatus() {
-  gasRun('checkWhatsAppStatus',null,function(d){ showToast(d&&d.connected?'✅ WhatsApp מחובר':'❌ WhatsApp לא מחובר', d&&d.connected?'success':'error'); });
-}
-
-// ===== GLOBAL SEARCH =====
-function onGlobalSearch(q) {
-  var btn = document.getElementById('search-clear-btn');
-  if (btn) btn.style.display = q ? 'block' : 'none';
-  if (!q || q.length < 2) { document.getElementById('search-results-overlay').classList.remove('open'); return; }
-  document.getElementById('search-results-overlay').classList.add('open');
-  gasRun('globalSearch', q, function(data){
-    data=data||{};
-    var students=data.students||[], lessons=data.lessons||[], payments=data.payments||[];
-    var h='';
-    if (students.length) {
-      h+='<div class="section-title" style="margin:8px 0 6px">תלמידים ('+students.length+')</div>';
-      students.forEach(function(s){ h+='<div class="card" style="padding:11px 13px;cursor:pointer" onclick="openStudentDetail(\''+s.id+'\');closeGlobalSearch()"><div style="font-weight:600">'+esc(s.name)+'</div><div style="font-size:12px;color:var(--text2)">'+fmtPhone(s.phone||'')+'</div></div>'; });
-    }
-    if (lessons.length) {
-      h+='<div class="section-title" style="margin:8px 0 6px">שיעורים ('+lessons.length+')</div>';
-      lessons.forEach(function(l){ h+='<div class="card" style="padding:11px 13px;cursor:pointer" onclick="openLessonModal(\''+l.id+'\');closeGlobalSearch()"><div style="font-weight:600">'+esc(l.studentName||'')+'</div><div style="font-size:12px;color:var(--text2)">'+esc(l.date||'')+' '+esc(l.time||'')+' · '+esc(l.status||'')+'</div></div>'; });
-    }
-    if (payments.length) {
-      h+='<div class="section-title" style="margin:8px 0 6px">תשלומים ('+payments.length+')</div>';
-      payments.forEach(function(p){ h+='<div class="card" style="padding:11px 13px"><div style="font-weight:600">'+esc(p.studentName||'')+'</div><div style="font-size:12px;color:var(--text2)">₪'+Number(p.amount||0).toLocaleString()+' · '+esc(p.date||'')+'</div></div>'; });
-    }
-    if (!h) h='<div class="empty-state"><div class="empty-icon">🔍</div><p>לא נמצאו תוצאות עבור "'+esc(q)+'"</p></div>';
-    document.getElementById('search-results-content').innerHTML = h;
-  });
-}
-
-function closeGlobalSearch() {
-  document.getElementById('search-results-overlay').classList.remove('open');
-  document.getElementById('header-search').value='';
-  var btn=document.getElementById('search-clear-btn'); if(btn) btn.style.display='none';
-}
-
-// ===== PRELOAD STUDENTS FOR DROPDOWNS =====
 (function(){
-  if (typeof google!=='undefined' && google.script && google.script.run) {
-    google.script.run
-      .withSuccessHandler(function(d){ S.students=d||[]; })
-      .withFailureHandler(function(){})
-      .getStudents({status:''});
+  if(localStorage.getItem('dsp-theme')==='light'){
+    document.body.classList.add('light');
+    document.getElementById('theme-toggle').textContent='🌙';
   }
 })();
-</script>
-</div>
-</body>
 
+// ════════════════════════════════════════
+// PAGES
+// ════════════════════════════════════════
+function showPage(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(name+'-page').classList.add('active');
+  if(el) el.classList.add('active');
+  const titles={dash:'דשבורד',cal:'קלנדר',students:'תלמידים',archive:'ארכיון',notes:'הערות'};
+  document.getElementById('page-title').textContent=titles[name]||'';
+  if(name==='cal') renderCalendar();
+  if(name==='archive') renderArchiveTable();
+  if(name==='notes') renderNotesPage();
+}
+
+// ════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════
+function renderDashboard(){
+  // KPI
+  const totalDebt=Object.values(_balances).filter(b=>{
+    const s=_students.find(x=>x.internalId===b.internalId);
+    return s&&(s.status==='פעיל'||s.status==='מושהה');
+  }).reduce((sum,b)=>sum+(b.net>0?b.net:0),0);
+
+  const now=new Date(), y=now.getFullYear(), m=now.getMonth()+1;
+  const monthLessons=_lessons.filter(l=>{
+    const d=_parseDate(l.date);
+    return d&&d.getFullYear()===y&&d.getMonth()+1===m&&l.status==='בוצע';
+  });
+  const monthIncome=monthLessons.reduce((s,l)=>s+l.price,0);
+  const activeStudents=_students.filter(s=>s.status==='פעיל').length;
+
+  document.getElementById('kpi-debt').textContent='₪'+totalDebt.toLocaleString();
+  document.getElementById('kpi-income').textContent='₪'+monthIncome.toLocaleString();
+  document.getElementById('kpi-lessons').textContent=monthLessons.length;
+  document.getElementById('kpi-students').textContent=activeStudents;
+
+  // Today lessons
+  const todayStr=_todayStr();
+  const todayL=_lessons.filter(l=>l.date===todayStr).sort((a,b)=>a.time.localeCompare(b.time));
+  const ll=document.getElementById('today-lessons-list');
+  if(!todayL.length){ll.innerHTML='<div style="text-align:center;color:var(--text3);padding:20px">אין שיעורים היום</div>';return;}
+  ll.innerHTML=todayL.map(l=>{
+    const cls=l.status==='בוצע'?'var(--green)':l.status==='בוטל'?'var(--text3)':l.status==='לא הגיע'?'var(--red)':'var(--blue)';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="editLesson('${l.eventId}',null)">
+      <span style="font-size:13px;font-weight:700;color:${cls};min-width:44px">${l.time}</span>
+      <span style="flex:1;font-size:13px;font-weight:600">${l.studentName}</span>
+      <span style="font-size:11px;color:var(--text3)">${l.type}</span>
+      <span style="font-size:12px;font-weight:700;color:${cls}">${l.status}</span>
+    </div>`;
+  }).join('');
+
+  // Debtors
+  const debtors=Object.values(_balances)
+    .filter(b=>{const s=_students.find(x=>x.internalId===b.internalId);return s&&(s.status==='פעיל'||s.status==='מושהה')&&b.net>0;})
+    .sort((a,b)=>b.net-a.net).slice(0,10);
+  document.getElementById('debtors-count').textContent=debtors.length+' חייבים';
+  const colors=['#6366f1','#8b5cf6','#3b82f6','#ec4899','#ef4444','#f97316','#eab308','#22c55e','#14b8a6','#06b6d4'];
+  document.getElementById('debtors-body').innerHTML=debtors.map((b,i)=>{
+    const name=b.name||'';
+    const init=name.charAt(0);
+    const cls=b.net>1500?'badge-red':'badge-orange';
+    const lbl=b.net>1500?'חוב גבוה':'חוב פעיל';
+    return `<tr onclick="openStudentCard('${b.internalId}')">
+      <td><div style="display:flex;align-items:center"><div class="initials" style="background:${colors[i%colors.length]}">${init}</div>${name}</div></td>
+      <td style="font-weight:700;color:${b.net>1500?'var(--red)':'var(--orange)'}">₪${b.net.toLocaleString()}</td>
+      <td><span class="badge ${cls}">${lbl}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+// CALENDAR
+// ════════════════════════════════════════
+function setCalView(v,el){
+  _calView=v;
+  document.querySelectorAll('.cvt').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderCalendar();
+}
+function calNav(d){
+  if(_calView==='day') _calDate.setDate(_calDate.getDate()+d);
+  if(_calView==='week') _calDate.setDate(_calDate.getDate()+d*7);
+  if(_calView==='month') _calDate.setMonth(_calDate.getMonth()+d);
+  renderCalendar();
+}
+function calGoToday(){_calDate=new Date();renderCalendar();}
+function renderCalendar(){
+  if(_calView==='day') _renderDay();
+  if(_calView==='week') _renderWeek();
+  if(_calView==='month') _renderMonth();
+}
+
+function _evCls(l){
+  const td=_todayStr();
+  let c='ev-planned';
+  if(l.status==='בוצע') c='ev-done';
+  if(l.status==='בוטל') c='ev-canceled';
+  if(l.status==='לא הגיע') c='ev-absent';
+  if(l.status==='מתוכנן'&&_dv(l.date)<_dv(td)) c+=' ev-pending';
+  if(l.type==='טסט') c+=' ev-test';
+  return c;
+}
+function _tMin(t){if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+(m||0);}
+function _dur(l){const t=l.type||'';if(t.includes('כפול'))return 120;if(t.includes('וחצי'))return 90;if(t.includes('משולש'))return 180;if(t==='טסט')return 60;if(t==='פנימי')return 30;return 45;}
+
+function _renderDay(){
+  const ds=_fmtDate(_calDate);
+  document.getElementById('cal-title').textContent=DAYS[_calDate.getDay()]+', '+ds;
+  const HS=6,HE=22,SH=48;
+  const lessons=_lessons.filter(l=>l.date===ds);
+  const pos=_resolveOverlaps(lessons,HS,SH);
+  let tCells='',hRows='';
+  for(let h=HS;h<=HE;h++){tCells+=`<div class="dv-time-slot">${String(h).padStart(2,'0')}:00</div>`;hRows+=`<div class="dv-hour-row"></div>`;}
+  const evHtml=pos.map(p=>`<div class="ev-block ${_evCls(p.l)}" style="top:${p.top}px;height:${p.h}px;right:${p.r}%;width:${p.w}%" onclick="editLesson('${p.l.eventId}',this)"><div class="ev-name">${p.l.studentName}</div><div class="ev-time">${p.l.time}·${p.l.type}</div></div>`).join('');
+  document.getElementById('cal-body').innerHTML=`<div class="dv-grid"><div>${tCells}</div><div style="position:relative;height:${(HE-HS+1)*SH}px">${hRows}${evHtml}</div></div>`;
+}
+
+function _resolveOverlaps(lessons,hs,sh){
+  const items=lessons.map(l=>({l,s:_tMin(l.time),e:_tMin(l.time)+_dur(l)})).sort((a,b)=>a.s-b.s);
+  const groups=[];
+  items.forEach(item=>{
+    let placed=false;
+    for(const g of groups){if(item.s<Math.max(...g.map(x=>x.e))){g.push(item);placed=true;break;}}
+    if(!placed)groups.push([item]);
+  });
+  const res=[];
+  groups.forEach(g=>{
+    const n=g.length;
+    g.forEach((item,i)=>{
+      const top=(item.s-hs*60)/60*sh;
+      const h=Math.max(_dur(item.l)/60*sh,20);
+      const w=Math.floor(92/n);
+      res.push({l:item.l,top,h,r:4+i*w,w:w-2});
+    });
+  });
+  return res;
+}
+
+function _renderWeek(){
+  const d=new Date(_calDate);d.setDate(d.getDate()-d.getDay());
+  const days=[];for(let i=0;i<7;i++){const nd=new Date(d);nd.setDate(d.getDate()+i);days.push(nd);}
+  document.getElementById('cal-title').textContent=_fmtDate(days[0])+' — '+_fmtDate(days[6]);
+  const td=_todayStr();
+  let head=`<div style="width:52px;border-left:1px solid var(--border)"></div>`;
+  days.forEach(wd=>{const ds=_fmtDate(wd);head+=`<div class="wv-day-head${ds===td?' today-col':''}">${DAYS[wd.getDay()]}<br><b>${wd.getDate()}</b></div>`;});
+  let rows='';
+  for(let h=6;h<=22;h++){
+    let cells=`<div class="wv-time-cell">${String(h).padStart(2,'0')}:00</div>`;
+    days.forEach(wd=>{
+      const ds=_fmtDate(wd);
+      const ev=_lessons.filter(l=>l.date===ds&&_tMin(l.time)>=h*60&&_tMin(l.time)<(h+1)*60);
+      cells+=`<div class="wv-day-cell">${ev.map(l=>`<div class="wv-ev ${_evCls(l)}" onclick="editLesson('${l.eventId}',this)">${l.studentName}</div>`).join('')}</div>`;
+    });
+    rows+=`<div class="wv-row" style="grid-template-columns:52px repeat(7,1fr)">${cells}</div>`;
+  }
+  document.getElementById('cal-body').innerHTML=`<div class="wv-head" style="grid-template-columns:52px repeat(7,1fr)">${head}</div><div>${rows}</div>`;
+}
+
+function _renderMonth(){
+  const y=_calDate.getFullYear(),m=_calDate.getMonth();
+  document.getElementById('cal-title').textContent=MONTHS[m]+' '+y;
+  const fd=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),td=_todayStr();
+  let head=DAYS.map(d=>`<div class="mv-head-cell">${d}</div>`).join('');
+  let cells='';
+  for(let i=0;i<fd;i++)cells+='<div class="mv-day other-month"></div>';
+  for(let day=1;day<=dim;day++){
+    const ds=`${String(day).padStart(2,'0')}/${String(m+1).padStart(2,'0')}/${y}`;
+    const isT=ds===td;
+    const ev=_lessons.filter(l=>l.date===ds);
+    const num=isT?`<div class="mv-today-num">${day}</div>`:`<div class="mv-day-num">${day}</div>`;
+    const evH=ev.slice(0,3).map(l=>`<div class="mv-ev ${_evCls(l)}" onclick="editLesson('${l.eventId}',this)">${l.studentName}</div>`).join('')+(ev.length>3?`<div style="font-size:10px;color:var(--text3)">+${ev.length-3}</div>`:'');
+    cells+=`<div class="mv-day${isT?' today':''}" onclick="mvClick('${ds}')">${num}${evH}</div>`;
+  }
+  document.getElementById('cal-body').innerHTML=`<div class="mv-grid">${head}${cells}</div>`;
+}
+
+function mvClick(ds){const p=ds.split('/');_calDate=new Date(+p[2],+p[1]-1,+p[0]);setCalView('day',document.querySelector('.cvt'));document.querySelectorAll('.cvt').forEach((t,i)=>t.classList.toggle('active',i===0));}
+
+// ════════════════════════════════════════
+// EVENT POPUP
+// ════════════════════════════════════════
+function editLesson(eid,anchor){if(anchor)openEvPopup(eid,anchor);else _openEditModal(eid);}
+
+function openEvPopup(eid,anchor){
+  const l=_lessons.find(x=>x.eventId===eid);if(!l)return;
+  _popLessonId=eid;
+  document.getElementById('pop-name').textContent=l.studentName;
+  document.getElementById('pop-sub').textContent=`${l.date} · ${l.time} · ${l.type} · ${l.status}`;
+  const pop=document.getElementById('ev-popup');pop.classList.add('open');
+  const r=anchor.getBoundingClientRect();
+  let left=r.left-248;if(left<8)left=r.right+8;
+  let top=r.top;if(top+160>window.innerHeight)top=window.innerHeight-168;
+  pop.style.left=left+'px';pop.style.top=top+'px';
+}
+function closeEvPopup(){document.getElementById('ev-popup').classList.remove('open');_popLessonId=null;}
+function popEdit(){const id=_popLessonId;closeEvPopup();_openEditModal(id);}
+function popDelete(){
+  const l=_lessons.find(x=>x.eventId===_popLessonId);closeEvPopup();
+  showConfirm('מחיקת שיעור',`למחוק שיעור של ${l?.studentName} ב-${l?.date}?`,()=>_call('deleteLessonById',l.eventId).then(()=>loadAll()),true);
+}
+function popDuplicate(){
+  const l=_lessons.find(x=>x.eventId===_popLessonId);closeEvPopup();if(!l)return;
+  _editLessonId=null;
+  document.getElementById('lesson-modal-title').textContent='שכפול שיעור';
+  document.getElementById('ls-del-btn').style.display='none';
+  document.getElementById('ls-save-btn').textContent='שמור שיעור';
+  document.getElementById('ls-student').value=l.studentId;
+  document.getElementById('ls-date').value=_isoFromDmy(l.date);
+  _setTimePickers(l.time);
+  document.getElementById('ls-price').value=l.price;
+  document.getElementById('ls-status').value='מתוכנן';
+  document.getElementById('ls-note').value=l.note||'';
+  document.querySelectorAll('input[name="lt"]').forEach(i=>i.checked=i.value===l.type);
+  document.getElementById('ls-s2-wrap').style.display=l.type==='טסט'?'':'none';
+  openModal('lesson-overlay');
+}
+document.addEventListener('click',e=>{
+  const p=document.getElementById('ev-popup');
+  if(p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.ev-block,.wv-ev,.mv-ev'))closeEvPopup();
+});
+
+// ════════════════════════════════════════
+// LESSON MODAL
+// ════════════════════════════════════════
+const LESSON_TYPES=['בודד','וחצי','כפול','משולש','פנימי','טסט'];
+function _buildLTGroup(){
+  const g=document.getElementById('lt-group');
+  LESSON_TYPES.forEach((t,i)=>{
+    const id='lt'+i;
+    g.innerHTML+=`<div class="lt-opt"><input type="radio" name="lt" id="${id}" value="${t}"${i===0?' checked':''}onchange="onLTChange()"><label for="${id}">${t}</label></div>`;
+  });
+}
+function _getLT(){return document.querySelector('input[name="lt"]:checked')?.value||'בודד';}
+function onLTChange(){
+  const t=_getLT();
+  document.getElementById('ls-s2-wrap').style.display=t==='טסט'?'':'none';
+  _updateLessonPrice();
+}
+function onLessonStudentChange(){_updateLessonPrice();}
+function _updateLessonPrice(){
+  const sid=document.getElementById('ls-student').value;
+  const t=_getLT();if(!sid)return;
+  const s=_students.find(x=>x.internalId===sid);if(!s)return;
+  let p=s.price;
+  if(t==='טסט')p=230;
+  if(t==='פנימי')p=(s.priceType==='packageA'||s.priceType==='packageB')?0:50;
+  document.getElementById('ls-price').value=p;
+}
+
+function openAddLesson(ds){
+  _editLessonId=null;
+  document.getElementById('lesson-modal-title').textContent='הוספת שיעור';
+  document.getElementById('ls-del-btn').style.display='none';
+  document.getElementById('ls-save-btn').textContent='שמור שיעור';
+  document.getElementById('ls-status').value='מתוכנן';
+  document.getElementById('ls-note').value='';
+  document.getElementById('ls-err').classList.remove('show');
+  document.getElementById('ls-date').value=ds||_fmtDateISO(_calDate);
+  document.querySelector('input[name="lt"]').checked=true;
+  document.getElementById('ls-s2-wrap').style.display='none';
+  openModal('lesson-overlay');
+}
+
+function _openEditModal(eid){
+  const l=_lessons.find(x=>x.eventId===eid);if(!l)return;
+  if(l.type==='טסט'&&(l.status==='ממתין'||l.status==='מתוכנן')){
+    document.getElementById('tr-eid').value=l.eventId;
+    document.getElementById('tr-sid').value=l.studentId;
+    openModal('test-overlay');return;
+  }
+  _editLessonId=eid;
+  document.getElementById('lesson-modal-title').textContent='עריכת שיעור';
+  document.getElementById('ls-del-btn').style.display='';
+  document.getElementById('ls-save-btn').textContent='שמור שינויים';
+  document.getElementById('ls-student').value=l.studentId;
+  document.getElementById('ls-date').value=_isoFromDmy(l.date);
+  _setTimePickers(l.time);
+  document.getElementById('ls-price').value=l.price;
+  document.getElementById('ls-status').value=l.status;
+  document.getElementById('ls-note').value=l.note||'';
+  document.getElementById('ls-err').classList.remove('show');
+  document.querySelectorAll('input[name="lt"]').forEach(i=>i.checked=i.value===l.type);
+  document.getElementById('ls-s2-wrap').style.display=l.type==='טסט'?'':'none';
+  if(l.studentId2)document.getElementById('ls-student2').value=l.studentId2;
+  openModal('lesson-overlay');
+}
+
+function submitLesson(){
+  const sid=document.getElementById('ls-student').value;
+  const date=document.getElementById('ls-date').value;
+  if(!sid||!date){_showErr('ls-err','אנא בחר תלמיד ותאריך');return;}
+  const s=_students.find(x=>x.internalId===sid);
+  const data={studentId:sid,studentName:s?.fullName||'',date:_dmyFromISO(date),time:_getTimePickers(),type:_getLT(),price:Number(document.getElementById('ls-price').value),note:document.getElementById('ls-note').value,status:document.getElementById('ls-status').value,studentId2:document.getElementById('ls-student2').value,priceType:s?.priceType||'regular'};
+  const fn=_editLessonId?'updateLessonById':'addLessonFromUI';
+  const args=_editLessonId?[_editLessonId,data]:[data];
+  _call(fn,...args).then(()=>{closeModal('lesson-overlay');loadAll();});
+}
+
+function _showDelConfirm(){
+  const l=_lessons.find(x=>x.eventId===_editLessonId);
+  showConfirm('מחיקת שיעור',`למחוק שיעור של ${l?.studentName}?`,()=>{_call('deleteLessonById',_editLessonId).then(()=>{closeModal('lesson-overlay');loadAll();});},true);
+}
+
+// ════════════════════════════════════════
+// STUDENT MODAL
+// ════════════════════════════════════════
+function _buildPriceGroup(){
+  const opts=[{l:'₪160',t:'regular',p:160},{l:'₪170',t:'regular',p:170},{l:'₪180',t:'regular',p:180},{l:'₪190',t:'regular',p:190},{l:'חבילה א׳ ₪5,200',t:'packageA',p:0},{l:'חבילה ב׳ ₪5,800',t:'packageB',p:0}];
+  const g=document.getElementById('price-group');
+  opts.forEach((o,i)=>{
+    const id='pr'+i;
+    g.innerHTML+=`<div class="price-opt"><input type="radio" name="pr" id="${id}" value="${o.t}-${o.p}"${i===2?' checked':''}><label for="${id}" onclick="_onPrice('${o.t}',${o.p})">${o.l}</label></div>`;
+  });
+  _selPriceType='regular';_selPrice=180;
+}
+function _onPrice(t,p){_selPriceType=t;_selPrice=p;}
+
+function openAddStudent(){
+  _editStudentId=null;
+  document.getElementById('student-modal-title').textContent='תלמיד חדש';
+  document.getElementById('st-del-btn').style.display='none';
+  ['st-first','st-last','st-phone','st-tz','st-email','st-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('st-dob').value='';
+  document.getElementById('st-open-balance').value='0';
+  document.getElementById('st-age-display').textContent='';
+  document.getElementById('st-err').classList.remove('show');
+  document.getElementById('st-tz-err').classList.remove('show');
+  document.getElementById('st-email-err').classList.remove('show');
+  openModal('student-overlay');
+}
+
+function editStudent(sid){
+  const s=_students.find(x=>x.internalId===sid);if(!s)return;
+  _editStudentId=sid;
+  document.getElementById('student-modal-title').textContent='עריכת תלמיד';
+  document.getElementById('st-del-btn').style.display='';
+  document.getElementById('st-first').value=s.firstName;
+  document.getElementById('st-last').value=s.lastName;
+  document.getElementById('st-phone').value=s.phone;
+  document.getElementById('st-tz').value=s.tz;
+  document.getElementById('st-dob').value=_isoFromDmy(s.dob);
+  document.getElementById('st-email').value=s.email;
+  document.getElementById('st-open-balance').value=s.openBalance;
+  document.getElementById('st-notes').value=s.notes;
+  calcAgeUI();openModal('student-overlay');
+}
+
+function validateTZUI(){
+  const tz=document.getElementById('st-tz').value;
+  const err=document.getElementById('st-tz-err');
+  if(tz.length===9){const ok=_tzOk(tz);err.textContent=ok?'':'ת"ז לא תקינה';err.classList.toggle('show',!ok);}
+  else err.classList.remove('show');
+}
+function _tzOk(tz){const s=String(tz).replace(/\D/g,'');if(s.length!==9)return false;let sum=0;for(let i=0;i<9;i++){let v=Number(s[i])*(i%2===0?1:2);if(v>9)v-=9;sum+=v;}return sum%10===0;}
+
+function calcAgeUI(){
+  const dob=document.getElementById('st-dob').value;
+  const el=document.getElementById('st-age-display');
+  if(!dob){el.textContent='';return;}
+  const d=new Date(dob),now=new Date();
+  let y=now.getFullYear()-d.getFullYear(),mo=now.getMonth()-d.getMonth();
+  if(mo<0){y--;mo+=12;}if(now.getDate()<d.getDate())mo--;if(mo<0){y--;mo+=12;}
+  const tot=y*12+mo,young=tot<198;
+  el.textContent=`גיל: ${y} שנה ו-${mo} חודשים${young?' ⚠️ מינימום 16.5':''}`;
+  el.className='age-display'+(young?' age-error':'');
+}
+
+function validateEmailUI(){
+  const email=document.getElementById('st-email').value.trim();
+  const err=document.getElementById('st-email-err');
+  const inp=document.getElementById('st-email');
+  if(!email){err.classList.remove('show');inp.style.fontWeight='';inp.style.color='';return;}
+  const ok=/^[^\s@]+@gmail\.com$/i.test(email);
+  err.textContent=ok?'':'מייל חייב להסתיים ב-@gmail.com';
+  err.classList.toggle('show',!ok);
+  inp.style.fontWeight=ok?'700':'';inp.style.color=ok?'var(--text)':'';
+}
+
+function submitStudent(){
+  const data={internalId:_editStudentId,firstName:document.getElementById('st-first').value.trim(),lastName:document.getElementById('st-last').value.trim(),phone:document.getElementById('st-phone').value.trim(),tz:document.getElementById('st-tz').value.trim(),dob:_dmyFromISO(document.getElementById('st-dob').value),email:document.getElementById('st-email').value.trim(),priceType:_selPriceType,price:_selPrice,openBalance:document.getElementById('st-open-balance').value,notes:document.getElementById('st-notes').value.trim()};
+  _call(_editStudentId?'updateStudentDetails':'addNewStudent',data).then(res=>{
+    if(res.ok){closeModal('student-overlay');loadAll();}
+    else _showErr('st-err',res.msg);
+  });
+}
+
+function deleteStudentConfirm(){
+  const s=_students.find(x=>x.internalId===_editStudentId);
+  showConfirm('מחיקת תלמיד',`למחוק את ${s?.fullName} וכל ההיסטוריה?`,()=>{_call('deleteStudentFull',_editStudentId).then(()=>{closeModal('student-overlay');loadAll();});},true);
+}
+
+// ════════════════════════════════════════
+// STUDENT CARD
+// ════════════════════════════════════════
+function openStudentCard(sid){
+  openModal('card-overlay');
+  document.getElementById('card-inner').innerHTML='<div class="spinner"><div class="spin"></div></div>';
+  Promise.all([_call('getStudentHistory',sid),_call('getTestsByStudent',sid)]).then(([hist,tests])=>{
+    const s=_students.find(x=>x.internalId===sid);
+    const b=hist.balance;
+    const netC=b.net>0?'var(--red)':'var(--green)';
+    const lRows=hist.lessons.map(l=>`<tr><td>${l.date}</td><td>${l.time}</td><td>${l.type}</td><td>₪${l.price}</td><td style="color:${l.status==='בוצע'?'var(--green)':l.status==='בוטל'?'var(--text3)':l.status==='לא הגיע'?'var(--red)':'var(--blue)'}">${l.status}</td></tr>`).join('');
+    const pRows=hist.payments.map(p=>`<tr><td>${p.date}</td><td>₪${p.amount}</td><td>${p.method}</td><td>${p.receipt}</td></tr>`).join('');
+    const tRows=tests.map(t=>{
+      const dc=t.status==='עבר'?'var(--green)':t.status==='נכשל'?'var(--red)':'var(--orange)';
+      const btn=(t.status==='ממתין'||t.status==='מתוכנן')?`<button class="btn-modal btn-outline2" style="padding:3px 10px;font-size:11px" onclick="openTestResult('${t.eventId}','${sid}')">עדכן</button>`:'';
+      return `<div class="test-row"><div class="test-dot" style="background:${dc}"></div><span>${t.date}</span><span style="color:${dc}">${t.status}</span><span>₪${t.price}</span>${btn}</div>`;
+    }).join('')||'<div style="color:var(--text3);font-size:12px;padding:8px 0">אין טסטים</div>';
+
+    document.getElementById('card-inner').innerHTML=`
+      <div class="card-hdr"><h3>${s.fullName}</h3><p>${s.phone} · ${s.tz}${s.ageStr?' · גיל: '+s.ageStr:''}</p></div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="sv">₪${b.lessonDebt.toLocaleString()}</div><div class="sl">חוב שיעורים</div></div>
+        <div class="stat-box stat-paid"><div class="sv">₪${b.totalPaid.toLocaleString()}</div><div class="sl">שולם</div></div>
+        <div class="stat-box ${b.net>0?'stat-debt':''}"><div class="sv" style="color:${netC}">₪${Math.abs(b.net).toLocaleString()}</div><div class="sl">${b.net>0?'חוב':'זכות'}</div></div>
+      </div>
+      <div class="sec-title">שיעורים</div>
+      <div style="overflow:auto;max-height:200px"><table class="hist-table"><thead><tr><th>תאריך</th><th>שעה</th><th>סוג</th><th>מחיר</th><th>סטטוס</th></tr></thead><tbody>${lRows||'<tr><td colspan="5" style="color:var(--text3);text-align:center">אין שיעורים</td></tr>'}</tbody></table></div>
+      <div class="sec-title">טסטים (${tests.length}/20)</div>
+      ${tRows}
+      <div class="sec-title">תשלומים</div>
+      <div style="overflow:auto;max-height:180px"><table class="hist-table"><thead><tr><th>תאריך</th><th>סכום</th><th>שיטה</th><th>קבלה</th></tr></thead><tbody>${pRows||'<tr><td colspan="4" style="color:var(--text3);text-align:center">אין תשלומים</td></tr>'}</tbody></table></div>
+      <div class="modal-footer">
+        <button class="btn-modal btn-outline2" onclick="closeModal('card-overlay')">סגור</button>
+        <button class="btn-modal btn-outline2" onclick="closeModal('card-overlay');editStudent('${sid}')">✏️ עריכה</button>
+        <button class="btn-modal btn-outline2" style="border-color:var(--orange);color:var(--orange)" onclick="archiveConfirm('${sid}')">📦 ארכיון</button>
+        <button class="btn-modal btn-primary2" onclick="openAddPayment('${sid}')">+ תשלום</button>
+      </div>`;
+  });
+}
+
+function archiveConfirm(sid){
+  const s=_students.find(x=>x.internalId===sid);
+  showConfirm('העברה לארכיון',`להעביר את ${s?.fullName} לארכיון?`,()=>{_call('archiveStudent',sid).then(()=>{closeModal('card-overlay');loadAll();});});
+}
+
+// ════════════════════════════════════════
+// STUDENTS TABLE
+// ════════════════════════════════════════
+function renderStudentsTable(){
+  const wrap=document.getElementById('students-table-wrap');
+  if(!_students.length){wrap.innerHTML='<div class="spinner">אין תלמידים</div>';return;}
+  const colors=['#6366f1','#8b5cf6','#3b82f6','#ec4899','#ef4444','#f97316','#eab308','#22c55e'];
+  const rows=_students.map((s,i)=>{
+    const b=_balances[s.internalId];
+    const net=b?b.net:0;
+    const nc=net>0?'var(--red)':net<0?'var(--green)':'var(--text3)';
+    const nt=net===0?'✅ מסולק':net>0?`▲ ₪${net.toLocaleString()}`:`✅ ₪${Math.abs(net).toLocaleString()}`;
+    const stc=s.status==='פעיל'?'badge-green':'badge-orange';
+    return `<tr onclick="openStudentCard('${s.internalId}')" style="cursor:pointer">
+      <td><div style="display:flex;align-items:center"><div class="initials" style="background:${colors[i%colors.length]}">${s.fullName.charAt(0)}</div>${s.fullName}</div></td>
+      <td>${s.phone}</td>
+      <td>${s.priceType==='packageA'?'חבילה א׳':s.priceType==='packageB'?'חבילה ב׳':'₪'+s.price}</td>
+      <td style="font-weight:700;color:${nc}">${nt}</td>
+      <td><span class="badge ${stc}">${s.status}</span></td>
+      <td><button class="btn-modal btn-outline2" style="padding:3px 10px;font-size:11px" onclick="event.stopPropagation();openAddPayment('${s.internalId}')">+ תשלום</button></td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML=`<table><thead><tr><th>שם</th><th>טלפון</th><th>מחיר</th><th>יתרה</th><th>סטטוס</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function filterStudents(){
+  const q=document.getElementById('students-search').value.toLowerCase();
+  document.querySelectorAll('#students-table-wrap tbody tr').forEach(tr=>tr.style.display=tr.textContent.toLowerCase().includes(q)?'':'none');
+}
+
+// ════════════════════════════════════════
+// ARCHIVE
+// ════════════════════════════════════════
+function renderArchiveTable(){
+  _call('getArchiveStudents').then(arch=>{
+    const wrap=document.getElementById('archive-table-wrap');
+    if(!arch||!arch.length){wrap.innerHTML='<div class="spinner" style="color:var(--text3);padding:40px;text-align:center">אין תלמידים בארכיון</div>';return;}
+    const rows=arch.map(s=>`<tr><td>${s.fullName}</td><td>${s.phone}</td><td>${s.tz}</td><td>${s.joinDate}</td><td>${s.endDate}</td></tr>`).join('');
+    wrap.innerHTML=`<table><thead><tr><th>שם</th><th>טלפון</th><th>ת"ז</th><th>הצטרפות</th><th>סיום</th></tr></thead><tbody>${rows}</tbody></table>`;
+  });
+}
+
+// ════════════════════════════════════════
+// PAYMENT
+// ════════════════════════════════════════
+function openAddPayment(sid){
+  const s=_students.find(x=>x.internalId===sid);
+  document.getElementById('pay-sid').value=sid;
+  document.getElementById('pay-name').textContent=s?.fullName||'';
+  document.getElementById('pay-amount').value='';
+  document.getElementById('pay-date').value=_fmtDateISO(new Date());
+  document.getElementById('pay-receipt').value='';
+  document.getElementById('pay-err').classList.remove('show');
+  openModal('payment-overlay');
+}
+function submitPayment(){
+  const sid=document.getElementById('pay-sid').value;
+  const s=_students.find(x=>x.internalId===sid);
+  const data={studentId:sid,studentName:s?.fullName||'',amount:document.getElementById('pay-amount').value,date:_dmyFromISO(document.getElementById('pay-date').value),method:document.getElementById('pay-method').value,receipt:document.getElementById('pay-receipt').value.trim()};
+  _call('addPaymentFromUI',data).then(res=>{if(res.ok){closeModal('payment-overlay');loadAll();}else _showErr('pay-err',res.msg);});
+}
+
+// ════════════════════════════════════════
+// PENDING
+// ════════════════════════════════════════
+function checkPending(){
+  const tv=_dv(_todayStr());
+  const p=_lessons.filter(l=>l.status==='מתוכנן'&&_dv(l.date)<tv);
+  const n=p.length;
+  document.getElementById('pending-count').textContent=n;
+  document.getElementById('pending-count').style.display=n>0?'':'none';
+  document.getElementById('pending-chip').style.display=n>0?'':'none';
+  document.getElementById('chip-count').textContent=n;
+}
+function openPendingPanel(){
+  const tv=_dv(_todayStr());
+  const p=_lessons.filter(l=>l.status==='מתוכנן'&&_dv(l.date)<tv);
+  const _ps={};
+  document.getElementById('pending-list').innerHTML=p.map(l=>`
+    <div class="pend-row">
+      <input type="checkbox" class="pend-cb" value="${l.eventId}" checked>
+      <span>${l.date} · ${l.time} · <b>${l.studentName}</b> · ${l.type}</span>
+      <select style="width:auto;font-size:12px;padding:3px 6px" onchange="_ps['${l.eventId}']=this.value">
+        <option value="בוצע" selected>בוצע</option>
+        <option value="בוטל">בוטל</option>
+        <option value="לא הגיע">לא הגיע</option>
+      </select>
+    </div>`).join('')||'<div style="color:var(--text3);text-align:center;padding:20px">אין שיעורים ממתינים 🎉</div>';
+  openModal('pending-overlay');
+}
+function confirmSelected(){
+  const cbs=document.querySelectorAll('.pend-cb:checked');
+  const tv=_dv(_todayStr());
+  const p=_lessons.filter(l=>l.status==='מתוכנן'&&_dv(l.date)<tv);
+  const upd=[...cbs].map(cb=>({id:cb.value,status:'בוצע'}));
+  Promise.all(upd.map(u=>_call('updateLessonById',u.id,{status:u.status}))).then(()=>{closeModal('pending-overlay');loadAll();});
+}
+
+// ════════════════════════════════════════
+// TEST RESULT
+// ════════════════════════════════════════
+function openTestResult(eid,sid){document.getElementById('tr-eid').value=eid;document.getElementById('tr-sid').value=sid;openModal('test-overlay');}
+function setTestResult(result){
+  const eid=document.getElementById('tr-eid').value;
+  const sid=document.getElementById('tr-sid').value;
+  _call('updateTestResult',eid,result).then(()=>{
+    closeModal('test-overlay');
+    if(result==='עבר'){const s=_students.find(x=>x.internalId===sid);showConfirm(`🎉 ${s?.fullName} עבר!`,'להעביר לארכיון?',()=>_call('archiveStudent',sid).then(()=>{closeModal('card-overlay');loadAll();}));}
+    else loadAll();
+  });
+}
+function openTestFail(){closeModal('test-overlay');openModal('testfail-overlay');}
+function handleTestFail(action){
+  const eid=document.getElementById('tr-eid').value;
+  const sid=document.getElementById('tr-sid').value;
+  _call('updateTestResult',eid,'נכשל').then(()=>{
+    closeModal('testfail-overlay');
+    if(action==='pause')_call('updateStudentDetails',{internalId:sid,status:'מושהה'}).then(()=>loadAll());
+    else{loadAll();openAddLesson();}
+  });
+}
+
+// ════════════════════════════════════════
+// REMINDERS
+// ════════════════════════════════════════
+const _reminded=new Set();
+function _startReminders(){setInterval(_checkReminders,60000);_checkReminders();}
+function _checkReminders(){
+  const now=new Date(),td=_todayStr(),nm=now.getHours()*60+now.getMinutes();
+  _lessons.forEach(l=>{
+    if(l.date!==td||l.status!=='מתוכנן')return;
+    const lm=_tMin(l.time),diff=lm-nm;
+    if(diff>=9&&diff<=11&&!_reminded.has(l.eventId)){
+      _reminded.add(l.eventId);
+      const c=document.getElementById('reminder-wrap');
+      const d=document.createElement('div');d.className='reminder';
+      d.innerHTML=`<span>⏰ שיעור עוד 10 דקות — <b>${l.studentName}</b> בשעה ${l.time}</span><button onclick="this.parentElement.remove()">✕</button>`;
+      c.appendChild(d);setTimeout(()=>d.remove(),30000);
+    }
+  });
+}
+
+// ════════════════════════════════════════
+// CONFIRM
+// ════════════════════════════════════════
+function showConfirm(title,body,onOk,danger){
+  document.getElementById('conf-title').textContent=title;
+  document.getElementById('conf-body').textContent=body;
+  const btn=document.getElementById('conf-ok');
+  btn.className='btn-modal '+(danger?'btn-danger2':'btn-primary2');
+  btn.textContent='אישור';
+  btn.onclick=()=>{closeModal('confirm-overlay');onOk();};
+  openModal('confirm-overlay');
+}
+
+// ════════════════════════════════════════
+// STUDENT SELECT FILL
+// ════════════════════════════════════════
+function _fillStudentSelects(){
+  const opts=_students.map(s=>`<option value="${s.internalId}">${s.fullName}</option>`).join('');
+  ['ls-student','ls-student2'].forEach(id=>{
+    const el=document.getElementById(id);const prev=el.value;
+    el.innerHTML=(id==='ls-student2'?'<option value="">— אופציונלי —</option>':'<option value="">— בחר תלמיד —</option>')+opts;
+    el.value=prev;
+  });
+}
+
+// ════════════════════════════════════════
+// MODAL HELPERS
+// ════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open');}));
+
+// ════════════════════════════════════════
+// TIME PICKERS
+// ════════════════════════════════════════
+function _initTimePickers(){
+  const h=document.getElementById('ls-hour'),m=document.getElementById('ls-min');
+  for(let i=5;i<=22;i++)h.innerHTML+=`<option value="${i}">${String(i).padStart(2,'0')}</option>`;
+  for(let i=0;i<60;i+=10)m.innerHTML+=`<option value="${i}">${String(i).padStart(2,'0')}</option>`;
+}
+function _getTimePickers(){return `${String(document.getElementById('ls-hour').value).padStart(2,'0')}:${String(document.getElementById('ls-min').value).padStart(2,'0')}`;}
+function _setTimePickers(hhmm){if(!hhmm)return;const[h,m]=hhmm.split(':').map(Number);document.getElementById('ls-hour').value=h;document.getElementById('ls-min').value=Math.round(m/10)*10%60;}
+
+// ════════════════════════════════════════
+// DATE / UTILS
+// ════════════════════════════════════════
+function _todayStr(){return _fmtDate(new Date());}
+function _fmtDate(d){return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;}
+function _fmtDateISO(d){return d.toISOString().split('T')[0];}
+function _parseDate(str){if(!str)return null;const p=str.split('/');if(p.length!==3)return null;return new Date(+p[2],+p[1]-1,+p[0]);}
+function _dv(str){const d=_parseDate(str);return d?d.getTime():0;}
+function _dmyFromISO(iso){if(!iso)return'';const[y,m,d]=iso.split('-');return`${d}/${m}/${y}`;}
+function _isoFromDmy(dmy){if(!dmy)return'';const[d,m,y]=dmy.split('/');return`${y}-${m}-${d}`;}
+function _showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.classList.add('show');}
+
+// ════════════════════════════════════════
+// NOTES
+// ════════════════════════════════════════
+function renderNotesPage(){
+  const cont=document.getElementById('notes-container');
+  if(!_notes.length){cont.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text3)">אין הערות עדיין 📝<br><small>צור הערה חדשה כדי להתחיל</small></div>';return;}
+  cont.innerHTML=_notes.map(n=>`
+    <div style="background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border);padding:14px;cursor:pointer;transition:all .15s;position:relative" onclick="openEditNote('${n.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+        <div style="font-size:11px;color:var(--text3)">${n.date} ${n.time}</div>
+        <div style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600">${n.category||'כללי'}</div>
+      </div>
+      <div style="font-size:13px;line-height:1.4;color:var(--text);word-wrap:break-word">${n.content.substring(0,100)}${n.content.length>100?'...':''}</div>
+    </div>`).join('');
+}
+
+function openAddNote(){
+  _editNoteId=null;
+  document.getElementById('notes-modal-title').textContent='הוספת הערה';
+  document.getElementById('note-category').value='';
+  document.getElementById('note-content').value='';
+  document.getElementById('note-delete-btn').style.display='none';
+  document.getElementById('note-err').style.display='none';
+  document.getElementById('note-chars').textContent='0';
+  openModal('notes-overlay');
+  document.getElementById('note-content').focus();
+}
+
+function openEditNote(nid){
+  const note=_notes.find(n=>n.id===nid);
+  if(!note)return;
+  _editNoteId=nid;
+  document.getElementById('notes-modal-title').textContent='עריכת הערה';
+  document.getElementById('note-category').value=note.category||'';
+  document.getElementById('note-content').value=note.content;
+  document.getElementById('note-delete-btn').style.display='block';
+  document.getElementById('note-err').style.display='none';
+  document.getElementById('note-chars').textContent=note.content.length;
+  openModal('notes-overlay');
+}
+
+function submitNote(){
+  const content=document.getElementById('note-content').value.trim();
+  const category=document.getElementById('note-category').value.trim();
+  const err=document.getElementById('note-err');
+  if(!content){err.textContent='התוכן חובה';err.style.display='block';return;}
+  const fn=_editNoteId?'updateNoteById':'addNote';
+  const arg=_editNoteId?_editNoteId:{content,category};
+  _call(fn,arg,_editNoteId?{content,category}:undefined).then(()=>{closeModal('notes-overlay');loadAll();}).catch(e=>{err.textContent='שגיאה: '+e;err.style.display='block';});
+}
+
+function _showNoteDelConfirm(){
+  showConfirm('מחיקת הערה','בטוח שאתה רוצה למחוק את ההערה הזאת?',()=>{_call('deleteNoteById',_editNoteId).then(()=>{closeModal('notes-overlay');loadAll();});},true);
+}
+
+document.getElementById('note-content')?.addEventListener('input',function(){document.getElementById('note-chars').textContent=this.value.length;});
+</script>
+</body>
 </html>
