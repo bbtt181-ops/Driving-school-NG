@@ -20,7 +20,6 @@ var _SC = {
 function _rowToStudent(obj) {
   var firstName = String(obj['שם פרטי']  || '');
   var lastName  = String(obj['שם משפחה'] || '');
-  var pricing   = String(obj['סוג מחיר'] || PRICING_REGULAR);
   return {
     id:            String(obj['מזהה']           || ''),
     firstName:     firstName,
@@ -32,8 +31,8 @@ function _rowToStudent(obj) {
     birthDate:     String(obj['תאריך לידה']     || ''),
     address:       String(obj['כתובת']          || ''),
     vehicleType:   String(obj['סוג רכב']        || ''),
-    pricingType:   pricing,
-    pricing:       pricing,
+    pricingType:   String(obj['סוג מחיר']       || PRICING_REGULAR),
+    pricing:       String(obj['סוג מחיר']       || PRICING_REGULAR),
     status:        String(obj['סטטוס']          || STATUS_ACTIVE),
     joinDate:      String(obj['תאריך הצטרפות'] || ''),
     notes:         String(obj['הערות']          || ''),
@@ -50,7 +49,6 @@ function getStudents(params) {
   var rows     = sheetToObjects(sheet, STUDENT_HEADERS);
   var students = rows.map(_rowToStudent);
 
-  // Filter by status (default: exclude ארכיון)
   var statusFilter = params.status || '';
   if (statusFilter && statusFilter !== 'all') {
     students = students.filter(function(s) { return s.status === statusFilter; });
@@ -58,7 +56,6 @@ function getStudents(params) {
     students = students.filter(function(s) { return s.status !== STATUS_ARCHIVE; });
   }
 
-  // Search filter
   var q = (params.search || '').trim().toLowerCase();
   if (q) {
     students = students.filter(function(s) {
@@ -69,16 +66,13 @@ function getStudents(params) {
     });
   }
 
-  // Sort by name
   students.sort(function(a, b) {
     var na = (a.firstName + ' ' + a.lastName);
     var nb = (b.firstName + ' ' + b.lastName);
     return na.localeCompare(nb, 'he');
   });
 
-  var page     = Number(params.page)     || 1;
-  var pageSize = Number(params.pageSize) || 50;
-  return paginate(students, page, pageSize);
+  return students;
 }
 
 // ─── getStudent ──────────────────────────────────────────────
@@ -94,8 +88,30 @@ function getStudent(id) {
   return null;
 }
 
+// ─── _normalizeInput — ממיר שמות שדה ישנים לחדשים ────────────
+function _normalizeInput(input) {
+  var out = {};
+  Object.keys(input).forEach(function(k) { out[k] = input[k]; });
+  // name → firstName + lastName
+  if (out.name && !out.firstName) {
+    var parts = String(out.name).trim().split(/\s+/);
+    out.firstName = parts[0] || '';
+    out.lastName  = parts.slice(1).join(' ') || '-';
+  }
+  // tz → idNumber
+  if (out.tz !== undefined && out.idNumber === undefined) {
+    out.idNumber = String(out.tz).replace(/\D/g, '');
+  }
+  // pricing → pricingType
+  if (out.pricing !== undefined && out.pricingType === undefined) {
+    out.pricingType = out.pricing;
+  }
+  return out;
+}
+
 // ─── createStudent ───────────────────────────────────────────
 function createStudent(input) {
+  input = _normalizeInput(input);
   var validation = validateStudent(input, false);
   if (!validation.valid) {
     return { success: false, error: validation.errors.join(' | '), code: 422 };
@@ -109,7 +125,7 @@ function createStudent(input) {
   obj['מזהה']           = id;
   obj['שם פרטי']        = String(input.firstName  || '').trim();
   obj['שם משפחה']       = String(input.lastName   || '').trim();
-  obj['תעודת זהות']     = String(input.idNumber || '').trim().replace(/^(\d{1,8})$/, function(s){ while(s.length<9) s='0'+s; return s; });
+  obj['תעודת זהות']     = String(input.idNumber   || '').trim();
   obj['טלפון']          = normalizePhone(input.phone);
   obj['תאריך לידה']     = String(input.birthDate  || '');
   obj['כתובת']          = String(input.address    || '');
@@ -128,7 +144,13 @@ function createStudent(input) {
 }
 
 // ─── updateStudent ───────────────────────────────────────────
-function updateStudent(input) {
+function updateStudent(input, data) {
+  // תמיכה בקריאה ישנה: updateStudent(id, obj)
+  if (typeof input === 'string' && data && typeof data === 'object') {
+    data.id = input;
+    input = data;
+  }
+  input = _normalizeInput(input);
   if (!input.id) return { success: false, error: 'נדרש מזהה תלמיד', code: 400 };
 
   var validation = validateStudent(input, true);
@@ -233,12 +255,12 @@ function validateStudent(data, isUpdate) {
     if (!data.lastName || !String(data.lastName).trim()) {
       errors.push('שם משפחה הוא שדה חובה');
     }
-    if (data.idNumber) {
-      if (!validateTZ(data.idNumber)) {
-        errors.push('תעודת זהות לא תקינה');
-      } else if (tzExists(data.idNumber, isUpdate ? data.id : null)) {
-        errors.push('תעודת זהות כבר קיימת במערכת');
-      }
+    if (!data.idNumber) {
+      errors.push('תעודת זהות הוא שדה חובה');
+    } else if (!validateTZ(data.idNumber)) {
+      errors.push('תעודת זהות לא תקינה');
+    } else if (tzExists(data.idNumber, null)) {
+      errors.push('תעודת זהות כבר קיימת במערכת');
     }
     if (!data.phone) {
       errors.push('טלפון הוא שדה חובה');
@@ -246,8 +268,7 @@ function validateStudent(data, isUpdate) {
       errors.push('מספר טלפון לא תקין (05XXXXXXXX)');
     }
   } else {
-    // On update — validate only provided fields
-    if (data.idNumber !== undefined) {
+    if (data.idNumber !== undefined && data.idNumber !== '') {
       if (!validateTZ(data.idNumber)) {
         errors.push('תעודת זהות לא תקינה');
       } else if (tzExists(data.idNumber, data.id)) {
@@ -261,14 +282,12 @@ function validateStudent(data, isUpdate) {
     }
   }
 
-  // Age validation (if DOB provided)
   if (data.birthDate && String(data.birthDate).trim()) {
     if (!validateAge(data.birthDate)) {
       errors.push('גיל התלמיד חייב להיות לפחות 16.5 שנים');
     }
   }
 
-  // pricingType validation
   var validPricing = [PRICING_REGULAR, PRICING_PACKAGE_A, PRICING_PACKAGE_B,
                       PRICING_INTERNAL, PRICING_TEST_ONLY];
   if (data.pricingType && validPricing.indexOf(data.pricingType) < 0) {
