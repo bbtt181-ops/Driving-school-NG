@@ -255,7 +255,14 @@ tr:hover td{background:var(--bg3);cursor:pointer}
   .kpi-row{grid-template-columns:1fr 1fr}
   .dash-grid{grid-template-columns:1fr}
   .form-2{grid-template-columns:1fr}
+  .mobile-nav{display:flex!important}
+  .main{padding-bottom:65px}
+  #fab{bottom:75px}
 }
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:var(--bg2);border-top:1px solid var(--border);z-index:100;align-items:center;justify-content:space-around}
+.mobile-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:6px 10px;border-radius:8px;color:var(--text3);font-size:10px;transition:color .15s}
+.mobile-nav-item.active{color:var(--accent)}
+.mobile-nav-item span{font-size:20px}
 </style>
 </head>
 <body>
@@ -362,6 +369,15 @@ tr:hover td{background:var(--bg3);cursor:pointer}
 
 <!-- FAB -->
 <button id="fab" onclick="openAddLesson()">+</button>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav">
+  <div class="mobile-nav-item active" id="mn-dash" onclick="showPage('dash',this);_setMobileNav('mn-dash')"><span>📊</span>דשבורד</div>
+  <div class="mobile-nav-item" id="mn-cal" onclick="showPage('cal',this);_setMobileNav('mn-cal')"><span>🗓️</span>קלנדר</div>
+  <div class="mobile-nav-item" id="mn-students" onclick="showPage('students',this);_setMobileNav('mn-students')"><span>👥</span>תלמידים</div>
+  <div class="mobile-nav-item" id="mn-notes" onclick="showPage('notes',this);_setMobileNav('mn-notes')"><span>📝</span>הערות</div>
+  <div class="mobile-nav-item" id="mn-archive" onclick="showPage('archive',this);_setMobileNav('mn-archive')"><span>📦</span>ארכיון</div>
+</div>
 
 <!-- REMINDERS -->
 <div id="reminder-wrap"></div>
@@ -1226,6 +1242,7 @@ function _dv(str){const d=_parseDate(str);return d?d.getTime():0;}
 function _dmyFromISO(iso){if(!iso)return'';const[y,m,d]=iso.split('-');return`${d}/${m}/${y}`;}
 function _isoFromDmy(dmy){if(!dmy)return'';const[d,m,y]=dmy.split('/');return`${y}-${m}-${d}`;}
 function _showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.classList.add('show');}
+function _setMobileNav(activeId){document.querySelectorAll('.mobile-nav-item').forEach(el=>el.classList.remove('active'));const el=document.getElementById(activeId);if(el)el.classList.add('active');}
 
 // ════════════════════════════════════════
 // NOTES
